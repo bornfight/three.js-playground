@@ -21,6 +21,7 @@
     }
 
     //modifiers
+    &--homepage,
     &--pet-pak {
         min-height: 100vh;
         display: flex;
@@ -29,11 +30,6 @@
         overflow: hidden;
 
         .o-section__heading {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            text-align: right;
         }
     }
 }
