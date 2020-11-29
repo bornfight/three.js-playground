@@ -1,0 +1,28 @@
+html,
+body {
+    font-family: $font-primary;
+    width: 100%;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+html {
+    &.is-locked {
+        top: 0;
+        left: 0;
+        right: 0;
+        position: fixed;
+    }
+}
+
+body {
+    font-family: $font-primary;
+    background-color: $black;
+    color: $white;
+    position: relative;
+
+    &.is-light {
+        background-color: $white;
+        color: $black;
+    }
+}

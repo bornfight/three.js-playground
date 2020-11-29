@@ -1,0 +1,35 @@
+.o-section {
+    &__heading {
+        padding-bottom: 20px;
+
+        //overrides
+        .u-a7 {
+            max-width: percentage(12/20);
+
+            @include mq("md") {
+                max-width: 100%;
+            }
+        }
+
+        .u-b0 {
+            opacity: 0.4;
+            max-width: 460px;
+        }
+    }
+
+    &__content {
+    }
+
+    //modifiers
+    &--pet-pak {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: hidden;
+
+        .o-container {
+            position: relative;
+        }
+    }
+}
