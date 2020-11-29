@@ -14,7 +14,7 @@ import GridHelper from "./helpers/GridHelper";
  * Components
  */
 import NavigationController from "./components/NavigationController";
-import Dummy from "./components/Dummy";
+import GLTFModelController from "./components/GLTFModelController";
 
 /**
  * Check if document is ready cross-browser
@@ -76,16 +76,12 @@ ready(() => {
      */
 
     /**
-     * Dummy component
-     * @type {Dummy}
-     */
-    const dummy = new Dummy();
-    dummy.init();
-
-    /**
      * Navigation
      * @type {NavigationController}
      */
     const navigation = new NavigationController();
     navigation.init();
+
+    const gltfModelController = new GLTFModelController();
+    gltfModelController.init();
 });

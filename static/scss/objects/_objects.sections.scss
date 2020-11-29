@@ -28,8 +28,12 @@
         justify-content: center;
         overflow: hidden;
 
-        .o-container {
-            position: relative;
+        .o-section__heading {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: right;
         }
     }
 }
