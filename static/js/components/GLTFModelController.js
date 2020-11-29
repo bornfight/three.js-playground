@@ -43,24 +43,26 @@ export default class GLTFModelController {
 
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xa0a0a0);
-        this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 1000);
+        this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
 
-        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+        const hemiLight = new THREE.HemisphereLight(0xcccccc, 0x999999);
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
 
-        const dirLight = new THREE.DirectionalLight(0xffffff);
-        dirLight.position.set(0, 200, 100);
+        const dirLight = new THREE.DirectionalLight(0xcccccc);
+        dirLight.position.set(50, 200, 100);
         dirLight.castShadow = true;
         dirLight.shadow.camera.top = 180;
         dirLight.shadow.camera.bottom = -100;
         dirLight.shadow.camera.left = -120;
         dirLight.shadow.camera.right = 120;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
         this.scene.add(dirLight);
 
         // ground
         const mesh = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(2000, 2000),
+            new THREE.PlaneBufferGeometry(2000, 2000, 10, 10),
             new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }),
         );
         mesh.rotation.x = -Math.PI / 2;
@@ -75,15 +77,25 @@ export default class GLTFModelController {
         let model = this.modelContainer.getAttribute("data-model-source");
         const loader = new GLTFLoader();
 
-        loader.load(model, (object) => {
-            object.scene.traverse((child) => {
+        loader.load(model, (model) => {
+            // dynamically change material
+            // let material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+
+            model.scene.traverse((child) => {
                 if (child.isMesh) {
                     child.castShadow = true;
                     child.receiveShadow = true;
+
+                    // additional modifications of position, color etc.
+                    child.position.y = 0.1;
+
+                    // child.material = material;
+                    // child.material.opacity = 0.5;
+                    // child.material.transparent = true;
                 }
             });
 
-            this.scene.add(object.scene);
+            this.scene.add(model.scene);
         });
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
