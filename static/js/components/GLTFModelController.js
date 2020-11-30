@@ -15,6 +15,7 @@ export default class GLTFModelController {
         this.scene;
         this.camera;
         this.renderer;
+        this.controls;
         this.mixer;
         this.clock = new THREE.Clock();
     }
@@ -33,6 +34,7 @@ export default class GLTFModelController {
     }
 
     initFBXModel() {
+        // camera
         this.camera = new THREE.PerspectiveCamera(
             35,
             window.innerWidth / window.innerHeight,
@@ -41,11 +43,13 @@ export default class GLTFModelController {
         );
         this.camera.position.set(48, 32, 32);
 
+        // scene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xa0a0a0);
         this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
 
-        const hemiLight = new THREE.HemisphereLight(0xcccccc, 0x999999);
+        // lights
+        const hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
 
@@ -69,25 +73,28 @@ export default class GLTFModelController {
         mesh.receiveShadow = true;
         this.scene.add(mesh);
 
-        const grid = new THREE.GridHelper(2000, 20, 0x000000, 0x000000);
-        grid.material.opacity = 0.2;
+        // ground grid
+        const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+        grid.material.opacity = 0.1;
         grid.material.transparent = true;
         this.scene.add(grid);
 
+        // get model
         let model = this.modelContainer.getAttribute("data-model-source");
-        const loader = new GLTFLoader();
 
+        // loader
+        const loader = new GLTFLoader();
         loader.load(model, (model) => {
             // dynamically change material
             // let material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
 
-            model.scene.traverse((child) => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
+            model.scene.traverse((object) => {
+                if (object.isMesh) {
+                    object.castShadow = true;
+                    object.receiveShadow = true;
 
                     // additional modifications of position, color etc.
-                    child.position.y = 0.1;
+                    object.position.y = 0.1;
 
                     // child.material = material;
                     // child.material.opacity = 0.5;
@@ -98,20 +105,24 @@ export default class GLTFModelController {
             this.scene.add(model.scene);
         });
 
+        // renderer
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
         this.modelContainer.appendChild(this.renderer.domElement);
 
-        const controls = new OrbitControls(
+        // orbit controls
+        this.controls = new OrbitControls(
             this.camera,
             this.renderer.domElement,
         );
-        controls.target.set(0, 10, 0);
-        controls.update();
+        this.controls.target.set(0, 10, 0);
+        this.controls.autoRotate = true;
+        this.controls.autoRotateSpeed = 0.6;
 
-        window.addEventListener("resize", this.onWindowResize, false);
+        // handle resize
+        window.addEventListener("resize", () => this.onWindowResize(), false);
     }
 
     onWindowResize() {
@@ -124,5 +135,6 @@ export default class GLTFModelController {
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
+        this.controls.update();
     }
 }
