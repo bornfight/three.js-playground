@@ -93,12 +93,14 @@ export default class GLTFModelController {
                     object.castShadow = true;
                     object.receiveShadow = true;
 
-                    // additional modifications of position, color etc.
+                    // additional modifications of position, color etc. — model properties can be changed
                     object.position.y = 0.1;
+                    object.material.side = 2;
+                    object.material.shadowSide = 1;
 
-                    // child.material = material;
-                    // child.material.opacity = 0.5;
-                    // child.material.transparent = true;
+                    // object.material = material;
+                    object.material.opacity = 0.35;
+                    // object.material.transparent = true;
                 }
             });
 
