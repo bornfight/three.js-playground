@@ -86,7 +86,7 @@ export default class GLTFModelController {
         const loader = new GLTFLoader();
         loader.load(model, (model) => {
             // dynamically change material
-            // let material = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+            // let material = new THREE.MeshPhysicalMaterial({ color: 0x0000ff });
 
             model.scene.traverse((object) => {
                 if (object.isMesh) {
@@ -99,7 +99,7 @@ export default class GLTFModelController {
                     object.material.shadowSide = 1;
 
                     // object.material = material;
-                    object.material.opacity = 0.35;
+                    // object.material.opacity = 0.35;
                     // object.material.transparent = true;
                 }
             });
