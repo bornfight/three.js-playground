@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import * as dat from "dat.gui";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -18,6 +19,25 @@ export default class GLTFModelController {
         this.controls;
         this.mixer;
         this.clock = new THREE.Clock();
+
+        this.gui = new dat.GUI({
+            name: "Bottle config",
+        });
+
+        this.guiConf = {
+            color: {
+                color: "#3cabab",
+            },
+            autoRotation: {
+                autoRotate: true,
+            },
+            transparency: {
+                transparent: true,
+            },
+            opacity: {
+                opacity: 0.5,
+            },
+        };
     }
 
     init() {
@@ -101,6 +121,18 @@ export default class GLTFModelController {
                     // object.material = material;
                     // object.material.opacity = 0.35;
                     // object.material.transparent = true;
+
+                    this.gui
+                        .addColor(this.guiConf.color, "color")
+                        .onChange((colorValue) => {
+                            object.material.color.set(colorValue);
+                        });
+
+                    this.gui
+                        .add(this.guiConf.opacity, "opacity", 0.5, 0.75, 0.05)
+                        .onChange((opacityValue) => {
+                            object.material.opacity = opacityValue;
+                        });
                 }
             });
 

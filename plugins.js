@@ -1,4 +1,5 @@
 export const plugins = [
+    "dat.gui",
     "gsap",
     "gsap/ScrollTrigger",
     "gsap/ScrollToPlugin",
