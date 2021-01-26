@@ -130,8 +130,9 @@ export default class GLTFModelController {
                     object.receiveShadow = true;
 
                     object.position.y = 0.1;
-                    object.material.side = 2;
-                    object.material.shadowSide = 1;
+                    object.material.side = THREE.DoubleSide;
+                    object.material.shadowSide = 2;
+                    object.material.metalness = 0;
                     object.material.opacity = this.guiConf.opacity.opacity;
                     object.material.emissive.set(this.guiConf.glossy.emissiveColor);
 
