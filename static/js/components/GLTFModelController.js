@@ -139,7 +139,7 @@ export default class GLTFModelController {
                         object.material.reflectivity = 1;
                         object.material.roughness = 0;
                         object.material.clearcoat = 1;
-                        object.material.clearcoatRoughness = 1;
+                        object.material.clearcoatRoughness = 0;
                     }
 
                     this.gui
@@ -162,7 +162,7 @@ export default class GLTFModelController {
                                 object.material.reflectivity = 1;
                                 object.material.roughness = 0;
                                 object.material.clearcoat = 1;
-                                object.material.clearcoatRoughness = 1;
+                                object.material.clearcoatRoughness = 0;
                             }
                         });
 
@@ -186,13 +186,13 @@ export default class GLTFModelController {
                                 object.material.reflectivity = 1;
                                 object.material.roughness = 0;
                                 object.material.clearcoat = 1;
-                                object.material.clearcoatRoughness = 1;
+                                object.material.clearcoatRoughness = 0;
                             } else {
                                 object.material.refractionRatio = 0;
                                 object.material.reflectivity = 0;
                                 object.material.roughness = 0.5;
                                 object.material.clearcoat = 0;
-                                object.material.clearcoatRoughness = 0;
+                                object.material.clearcoatRoughness = 0.5;
                             }
                         });
                 }

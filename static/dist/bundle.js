@@ -147,7 +147,7 @@ var GLTFModelController = /*#__PURE__*/function () {
               object.material.reflectivity = 1;
               object.material.roughness = 0;
               object.material.clearcoat = 1;
-              object.material.clearcoatRoughness = 1;
+              object.material.clearcoatRoughness = 0;
             }
 
             _this.gui.addColor(_this.guiConf.color, "color").onChange(function (colorValue) {
@@ -166,7 +166,7 @@ var GLTFModelController = /*#__PURE__*/function () {
                 object.material.reflectivity = 1;
                 object.material.roughness = 0;
                 object.material.clearcoat = 1;
-                object.material.clearcoatRoughness = 1;
+                object.material.clearcoatRoughness = 0;
               }
             });
 
@@ -184,13 +184,13 @@ var GLTFModelController = /*#__PURE__*/function () {
                 object.material.reflectivity = 1;
                 object.material.roughness = 0;
                 object.material.clearcoat = 1;
-                object.material.clearcoatRoughness = 1;
+                object.material.clearcoatRoughness = 0;
               } else {
                 object.material.refractionRatio = 0;
                 object.material.reflectivity = 0;
                 object.material.roughness = 0.5;
                 object.material.clearcoat = 0;
-                object.material.clearcoatRoughness = 0;
+                object.material.clearcoatRoughness = 0.5;
               }
             });
           }
