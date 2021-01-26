@@ -225,7 +225,7 @@ export default class GLTFModelController {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-    
+
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
