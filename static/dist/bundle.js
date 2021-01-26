@@ -128,10 +128,8 @@ var GLTFModelController = /*#__PURE__*/function () {
         model.scene.traverse(function (object) {
           if (object.isMesh) {
             object.castShadow = true;
-            object.receiveShadow = true; // additional modifications of position, color etc. — model properties can be changed
-
-            object.position.y = 0.1; // object.material = material;
-
+            object.receiveShadow = true;
+            object.position.y = 0.1;
             object.material.side = 2;
             object.material.shadowSide = 1;
             object.material.opacity = _this.guiConf.opacity.opacity;
