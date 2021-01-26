@@ -25,8 +25,11 @@ export default class GLTFModelController {
         });
 
         this.guiConf = {
+            light: {
+                lightIntensity: 0.8,
+            },
             color: {
-                color: "#3cabab",
+                color: "#0fb3a0",
             },
             autoRotation: {
                 autoRotate: false,
@@ -75,7 +78,7 @@ export default class GLTFModelController {
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
 
-        const dirLight = new THREE.DirectionalLight(0xcccccc);
+        const dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
         dirLight.position.set(20, 20, 20);
         dirLight.castShadow = true;
         dirLight.shadow.camera.top = 180;
@@ -88,6 +91,12 @@ export default class GLTFModelController {
         this.lightWrapper.position.set(0, 0, 0);
         this.lightWrapper.add(dirLight);
         this.scene.add(this.lightWrapper);
+
+        this.gui
+            .add(this.guiConf.light, "lightIntensity", 0, 1, 0.01)
+            .onChange((value) => {
+                dirLight.intensity = value;
+            });
 
         // ground
         const mesh = new THREE.Mesh(

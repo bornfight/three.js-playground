@@ -45,8 +45,11 @@ var GLTFModelController = /*#__PURE__*/function () {
       name: "Bottle config"
     });
     this.guiConf = {
+      light: {
+        lightIntensity: 0.8
+      },
       color: {
-        color: "#3cabab"
+        color: "#0fb3a0"
       },
       autoRotation: {
         autoRotate: false
@@ -90,7 +93,7 @@ var GLTFModelController = /*#__PURE__*/function () {
       var hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
       hemiLight.position.set(0, 200, 0);
       this.scene.add(hemiLight);
-      var dirLight = new THREE.DirectionalLight(0xcccccc);
+      var dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
       dirLight.position.set(20, 20, 20);
       dirLight.castShadow = true;
       dirLight.shadow.camera.top = 180;
@@ -102,7 +105,10 @@ var GLTFModelController = /*#__PURE__*/function () {
       this.lightWrapper = new THREE.Object3D();
       this.lightWrapper.position.set(0, 0, 0);
       this.lightWrapper.add(dirLight);
-      this.scene.add(this.lightWrapper); // ground
+      this.scene.add(this.lightWrapper);
+      this.gui.add(this.guiConf.light, "lightIntensity", 0, 1, 0.01).onChange(function (value) {
+        dirLight.intensity = value;
+      }); // ground
 
       var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000, 10, 10), new THREE.MeshPhongMaterial({
         color: 0x999999,
