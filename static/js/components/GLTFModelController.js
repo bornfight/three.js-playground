@@ -1,3 +1,4 @@
+
 import * as THREE from "three";
 import * as dat from "dat.gui";
 
@@ -31,11 +32,13 @@ export default class GLTFModelController {
             autoRotation: {
                 autoRotate: true,
             },
-            transparency: {
-                transparent: true,
-            },
             opacity: {
+                transparent: true,
                 opacity: 0.5,
+            },
+            glossy: {
+                glass: false,
+                emissiveColor: "#000000",
             },
         };
     }
@@ -74,7 +77,7 @@ export default class GLTFModelController {
         this.scene.add(hemiLight);
 
         const dirLight = new THREE.DirectionalLight(0xcccccc);
-        dirLight.position.set(50, 200, 100);
+        dirLight.position.set(20, 20, 20);
         dirLight.castShadow = true;
         dirLight.shadow.camera.top = 180;
         dirLight.shadow.camera.bottom = -100;
@@ -106,21 +109,25 @@ export default class GLTFModelController {
         const loader = new GLTFLoader();
         loader.load(model, (model) => {
             // dynamically change material
-            // let material = new THREE.MeshPhysicalMaterial({ color: 0x0000ff });
+            let material = new THREE.MeshPhysicalMaterial({
+                color: this.guiConf.color.color,
+            });
 
             model.scene.traverse((object) => {
                 if (object.isMesh) {
                     object.castShadow = true;
                     object.receiveShadow = true;
+                    const initMaterial = object.material;
 
                     // additional modifications of position, color etc. — model properties can be changed
                     object.position.y = 0.1;
+                    // object.material = material;
+
                     object.material.side = 2;
                     object.material.shadowSide = 1;
 
-                    // object.material = material;
-                    // object.material.opacity = 0.35;
-                    // object.material.transparent = true;
+                    object.material.opacity = this.guiConf.opacity.opacity;
+                    object.material.emissive.set(this.guiConf.glossy.emissiveColor);
 
                     this.gui
                         .addColor(this.guiConf.color, "color")
@@ -129,9 +136,51 @@ export default class GLTFModelController {
                         });
 
                     this.gui
-                        .add(this.guiConf.opacity, "opacity", 0.5, 0.75, 0.05)
+                        .add(this.guiConf.opacity, "transparent")
+                        .onChange((value) => {
+                            if (value === false) {
+                                object.material = material;
+                            } else {
+                                object.material = initMaterial;
+                            }
+
+                            if (this.guiConf.glossy.glass) {
+                                object.material.refractionRatio = 1;
+                                object.material.reflectivity = 1;
+                                object.material.roughness = 0;
+                                object.material.clearcoat = 1;
+                                object.material.clearcoatRoughness = 1;
+                            }
+                        });
+
+                    this.gui
+                        .add(this.guiConf.opacity, "opacity", 0.25, 0.75, 0.01)
                         .onChange((opacityValue) => {
                             object.material.opacity = opacityValue;
+                        });
+
+                    this.gui
+                        .addColor(this.guiConf.glossy, "emissiveColor")
+                        .onChange((colorValue) => {
+                            object.material.emissive.set(colorValue);
+                        });
+
+                    this.gui
+                        .add(this.guiConf.glossy, "glass")
+                        .onChange((value) => {
+                            if (value) {
+                                object.material.refractionRatio = 1;
+                                object.material.reflectivity = 1;
+                                object.material.roughness = 0;
+                                object.material.clearcoat = 1;
+                                object.material.clearcoatRoughness = 1;
+                            } else {
+                                object.material.refractionRatio = 0;
+                                object.material.reflectivity = 0;
+                                object.material.roughness = 0.5;
+                                object.material.clearcoat = 0;
+                                object.material.clearcoatRoughness = 0;
+                            }
                         });
                 }
             });
@@ -153,7 +202,18 @@ export default class GLTFModelController {
         );
         this.controls.target.set(0, 10, 0);
         this.controls.autoRotate = true;
-        this.controls.autoRotateSpeed = 0.6;
+        this.controls.autoRotateSpeed = 1;
+
+        this.gui
+            .add(this.guiConf.autoRotation, "autoRotate")
+            .onChange((value) => {
+                console.log(value);
+                if (value === false) {
+                    this.controls.autoRotate = false;
+                } else {
+                    this.controls.autoRotate = true;
+                }
+            });
 
         // handle resize
         window.addEventListener("resize", () => this.onWindowResize(), false);
@@ -165,7 +225,7 @@ export default class GLTFModelController {
 
         this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-
+    
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
