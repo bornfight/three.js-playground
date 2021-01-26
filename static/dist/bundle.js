@@ -49,14 +49,14 @@ var GLTFModelController = /*#__PURE__*/function () {
         color: "#3cabab"
       },
       autoRotation: {
-        autoRotate: true
+        autoRotate: false
       },
       opacity: {
-        transparent: true,
+        transparent: false,
         opacity: 0.5
       },
       glossy: {
-        glass: false,
+        glass: true,
         emissiveColor: "#000000"
       }
     };
@@ -99,7 +99,10 @@ var GLTFModelController = /*#__PURE__*/function () {
       dirLight.shadow.camera.right = 120;
       dirLight.shadow.mapSize.width = 2048;
       dirLight.shadow.mapSize.height = 2048;
-      this.scene.add(dirLight); // ground
+      this.lightWrapper = new THREE.Object3D();
+      this.lightWrapper.position.set(0, 0, 0);
+      this.lightWrapper.add(dirLight);
+      this.scene.add(this.lightWrapper); // ground
 
       var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(2000, 2000, 10, 10), new THREE.MeshPhongMaterial({
         color: 0x999999,
@@ -125,8 +128,7 @@ var GLTFModelController = /*#__PURE__*/function () {
         model.scene.traverse(function (object) {
           if (object.isMesh) {
             object.castShadow = true;
-            object.receiveShadow = true;
-            var initMaterial = object.material; // additional modifications of position, color etc. — model properties can be changed
+            object.receiveShadow = true; // additional modifications of position, color etc. — model properties can be changed
 
             object.position.y = 0.1; // object.material = material;
 
@@ -134,6 +136,21 @@ var GLTFModelController = /*#__PURE__*/function () {
             object.material.shadowSide = 1;
             object.material.opacity = _this.guiConf.opacity.opacity;
             object.material.emissive.set(_this.guiConf.glossy.emissiveColor);
+            var initMaterial = object.material;
+
+            if (_this.guiConf.opacity.transparent === false) {
+              object.material = material;
+            } else {
+              object.material = initMaterial;
+            }
+
+            if (_this.guiConf.glossy.glass) {
+              object.material.refractionRatio = 1;
+              object.material.reflectivity = 1;
+              object.material.roughness = 0;
+              object.material.clearcoat = 1;
+              object.material.clearcoatRoughness = 1;
+            }
 
             _this.gui.addColor(_this.guiConf.color, "color").onChange(function (colorValue) {
               object.material.color.set(colorValue);
@@ -194,7 +211,7 @@ var GLTFModelController = /*#__PURE__*/function () {
 
       this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
       this.controls.target.set(0, 10, 0);
-      this.controls.autoRotate = true;
+      this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
       this.controls.autoRotateSpeed = 1;
       this.gui.add(this.guiConf.autoRotation, "autoRotate").onChange(function (value) {
         console.log(value);
@@ -226,6 +243,7 @@ var GLTFModelController = /*#__PURE__*/function () {
         return _this2.animate();
       });
       this.renderer.render(this.scene, this.camera);
+      this.lightWrapper.rotation.y += 0.003;
       this.controls.update();
     }
   }]);

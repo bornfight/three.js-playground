@@ -1,4 +1,3 @@
-
 import * as THREE from "three";
 import * as dat from "dat.gui";
 
@@ -30,14 +29,14 @@ export default class GLTFModelController {
                 color: "#3cabab",
             },
             autoRotation: {
-                autoRotate: true,
+                autoRotate: false,
             },
             opacity: {
-                transparent: true,
+                transparent: false,
                 opacity: 0.5,
             },
             glossy: {
-                glass: false,
+                glass: true,
                 emissiveColor: "#000000",
             },
         };
@@ -85,7 +84,10 @@ export default class GLTFModelController {
         dirLight.shadow.camera.right = 120;
         dirLight.shadow.mapSize.width = 2048;
         dirLight.shadow.mapSize.height = 2048;
-        this.scene.add(dirLight);
+        this.lightWrapper = new THREE.Object3D();
+        this.lightWrapper.position.set(0, 0, 0);
+        this.lightWrapper.add(dirLight);
+        this.scene.add(this.lightWrapper);
 
         // ground
         const mesh = new THREE.Mesh(
@@ -117,7 +119,6 @@ export default class GLTFModelController {
                 if (object.isMesh) {
                     object.castShadow = true;
                     object.receiveShadow = true;
-                    const initMaterial = object.material;
 
                     // additional modifications of position, color etc. — model properties can be changed
                     object.position.y = 0.1;
@@ -128,6 +129,22 @@ export default class GLTFModelController {
 
                     object.material.opacity = this.guiConf.opacity.opacity;
                     object.material.emissive.set(this.guiConf.glossy.emissiveColor);
+
+                    const initMaterial = object.material;
+
+                    if (this.guiConf.opacity.transparent === false) {
+                        object.material = material;
+                    } else {
+                        object.material = initMaterial;
+                    }
+
+                    if (this.guiConf.glossy.glass) {
+                        object.material.refractionRatio = 1;
+                        object.material.reflectivity = 1;
+                        object.material.roughness = 0;
+                        object.material.clearcoat = 1;
+                        object.material.clearcoatRoughness = 1;
+                    }
 
                     this.gui
                         .addColor(this.guiConf.color, "color")
@@ -201,7 +218,7 @@ export default class GLTFModelController {
             this.renderer.domElement,
         );
         this.controls.target.set(0, 10, 0);
-        this.controls.autoRotate = true;
+        this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
         this.controls.autoRotateSpeed = 1;
 
         this.gui
@@ -229,6 +246,7 @@ export default class GLTFModelController {
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
+        this.lightWrapper.rotation.y += 0.003;
         this.controls.update();
     }
 }
