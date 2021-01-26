@@ -78,24 +78,21 @@ export default class GLTFModelController {
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
 
-        const dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
-        dirLight.position.set(20, 20, 20);
-        dirLight.castShadow = true;
-        dirLight.shadow.camera.top = 180;
-        dirLight.shadow.camera.bottom = -100;
-        dirLight.shadow.camera.left = -120;
-        dirLight.shadow.camera.right = 120;
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
-        this.lightWrapper = new THREE.Object3D();
-        this.lightWrapper.position.set(0, 0, 0);
-        this.lightWrapper.add(dirLight);
-        this.scene.add(this.lightWrapper);
+        this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
+        this.dirLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+        this.dirLight.castShadow = true;
+        this.dirLight.shadow.camera.top = 180;
+        this.dirLight.shadow.camera.bottom = -100;
+        this.dirLight.shadow.camera.left = -120;
+        this.dirLight.shadow.camera.right = 120;
+        this.dirLight.shadow.mapSize.width = 2048;
+        this.dirLight.shadow.mapSize.height = 2048;
+        this.scene.add(this.dirLight);
 
         this.gui
             .add(this.guiConf.light, "lightIntensity", 0, 1, 0.01)
             .onChange((value) => {
-                dirLight.intensity = value;
+                this.dirLight.intensity = value;
             });
 
         // ground
@@ -252,7 +249,7 @@ export default class GLTFModelController {
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
-        this.lightWrapper.rotation.y += 0.003;
+        this.dirLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
         this.controls.update();
     }
 }
