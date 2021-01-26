@@ -101,7 +101,7 @@ export default class GLTFModelController {
             new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }),
         );
         mesh.rotation.x = -Math.PI / 2;
-        mesh.receiveShadow = true;
+        mesh.receiveShadow = false;
         this.scene.add(mesh);
 
         // ground grid
