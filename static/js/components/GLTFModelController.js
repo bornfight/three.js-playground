@@ -46,7 +46,7 @@ export default class GLTFModelController {
                     emissiveColor: "#1e0f0f",
                 },
                 grid: {
-                    showGrid: true,
+                    showGrid: false,
                 },
             };
 
@@ -131,11 +131,7 @@ export default class GLTFModelController {
         this.gui
             .add(this.guiConf.grid, "showGrid")
             .onChange((value) => {
-                if (value) {
-                    grid.visible = true;
-                } else {
-                    grid.visible = false;
-                }
+                grid.visible = !!value;
             });
 
         // renderer
