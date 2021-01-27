@@ -16,6 +16,9 @@ export default class GLTFModelController {
         if (this.modelContainer !== null) {
             console.log("GLTFModelController init()");
 
+            this.width = this.modelContainer.offsetWidth;
+            this.height = this.modelContainer.offsetHeight;
+
             THREE.Cache.enabled = true;
 
             // gui
@@ -29,7 +32,7 @@ export default class GLTFModelController {
                     lightIntensity: 6,
                 },
                 color: {
-                    color: "#0fb3a0",
+                    color: "#0005a0",
                 },
                 autoRotation: {
                     autoRotate: true,
@@ -53,12 +56,12 @@ export default class GLTFModelController {
         // camera
         this.camera = new THREE.PerspectiveCamera(
             35,
-            window.innerWidth / window.innerHeight,
+            this.width / this.height,
             0.5,
             400,
         );
         this.camera.updateProjectionMatrix();
-        this.camera.position.set(48, 20, 32);
+        this.camera.position.set(35, 20, 32);
 
         // scene
         this.scene = new THREE.Scene();
@@ -101,8 +104,8 @@ export default class GLTFModelController {
 
         // ground
         const mesh = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(2000, 2000, 10, 10),
-            new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }),
+            new THREE.PlaneBufferGeometry(1000, 1000, 1, 1),
+            new THREE.MeshPhongMaterial({ color: 0xeeeeee, depthWrite: false }),
         );
         mesh.material.color.convertSRGBToLinear();
         mesh.rotation.x = -Math.PI / 2;
@@ -111,7 +114,7 @@ export default class GLTFModelController {
 
         // ground grid
         const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
-        grid.material.opacity = 0.1;
+        grid.material.opacity = 0.3;
         grid.material.transparent = true;
         this.scene.add(grid);
 
@@ -122,7 +125,7 @@ export default class GLTFModelController {
             powerPreference: "high-performance",
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.width, this.height);
         this.renderer.shadowMap.enabled = true;
         this.renderer.gammaFactor = 2.2;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
@@ -287,10 +290,10 @@ export default class GLTFModelController {
     }
 
     onWindowResize() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
 
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.width, this.height);
     }
 
     animate() {
