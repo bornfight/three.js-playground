@@ -66,6 +66,7 @@ export default class GLTFModelController {
         // scene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xffffff);
+        // this.scene.background = new THREE.Color(0xa0a0a0);
         // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
 
         // lights
@@ -105,19 +106,19 @@ export default class GLTFModelController {
             });
 
         // ground
-        const mesh = new THREE.Mesh(
-            new THREE.PlaneBufferGeometry(1000, 1000, 1, 1),
-            new THREE.MeshPhongMaterial({ color: 0xeeeeee, depthWrite: false }),
-        );
-        mesh.material.color.convertSRGBToLinear();
-        mesh.rotation.x = -Math.PI / 2;
-        mesh.receiveShadow = true;
+        // const mesh = new THREE.Mesh(
+        //     new THREE.PlaneBufferGeometry(1000, 1000, 1, 1),
+        //     new THREE.MeshPhongMaterial({ color: 0xeeeeee, depthWrite: false }),
+        // );
+        // mesh.material.color.convertSRGBToLinear();
+        // mesh.rotation.x = -Math.PI / 2;
+        // mesh.receiveShadow = true;
         // this.scene.add(mesh);
 
         // ground grid
-        const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
-        grid.material.opacity = 0.3;
-        grid.material.transparent = true;
+        // const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+        // grid.material.opacity = 0.3;
+        // grid.material.transparent = true;
         // this.scene.add(grid);
 
         // renderer
