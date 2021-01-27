@@ -115,19 +115,34 @@ export default class GLTFModelController {
             // dynamically change material
             let material = new THREE.MeshPhysicalMaterial({
                 color: this.guiConf.color.color,
+                depthFunc: false,
             });
 
             model.scene.traverse((object) => {
                 if (object.isMesh) {
-                    object.castShadow = true;
-                    object.receiveShadow = true;
-
                     object.position.y = 0.1;
-                    object.material.side = THREE.DoubleSide;
-                    object.material.shadowSide = 2;
+                    object.material.side = 2;
+                    object.material.shadowSide = 1;
                     object.material.metalness = 0;
                     object.material.opacity = this.guiConf.opacity.opacity;
                     object.material.emissive.set(this.guiConf.glossy.emissiveColor);
+                    object.material.depthFunc = false;
+
+                    // reflection map
+                    const path = `/three.js-playground/static/images/maps/`;
+                    const mapUrls = [
+                        path + "posx.jpg",
+                        path + "negx.jpg",
+                        path + "posy.jpg",
+                        path + "negy.jpg",
+                        path + "posz.jpg",
+                        path + "negz.jpg",
+                    ];
+
+                    const cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
+                    cubeMap.format = THREE.RGBFormat;
+                    object.material.envMap = cubeMap;
+                    object.material.needsUpdate = true;
 
                     const initMaterial = object.material;
 
