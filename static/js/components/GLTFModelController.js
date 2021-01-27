@@ -65,8 +65,8 @@ export default class GLTFModelController {
 
         // scene
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xa0a0a0);
-        this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
+        this.scene.background = new THREE.Color(0xffffff);
+        // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
 
         // lights
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
@@ -90,9 +90,11 @@ export default class GLTFModelController {
         this.dirLight.shadow.camera.bottom = -100;
         this.dirLight.shadow.camera.left = -120;
         this.dirLight.shadow.camera.right = 120;
-        this.dirLight.shadow.mapSize.width = 2048;
-        this.dirLight.shadow.mapSize.height = 2048;
+        this.dirLight.shadow.mapSize.width = 4096;
+        this.dirLight.shadow.mapSize.height = 4096;
         this.dirLight.matrixAutoUpdate = false;
+        this.dirLight.shadow.radius = 4;
+        this.dirLight.shadow.bias = 0.0001;
         this.scene.add(this.dirLight);
 
         // add gui for light intensity
@@ -110,13 +112,13 @@ export default class GLTFModelController {
         mesh.material.color.convertSRGBToLinear();
         mesh.rotation.x = -Math.PI / 2;
         mesh.receiveShadow = true;
-        this.scene.add(mesh);
+        // this.scene.add(mesh);
 
         // ground grid
         const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
         grid.material.opacity = 0.3;
         grid.material.transparent = true;
-        this.scene.add(grid);
+        // this.scene.add(grid);
 
         // renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -144,8 +146,8 @@ export default class GLTFModelController {
         this.controls.target.set(0, 10, 0);
         this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
         this.controls.autoRotateSpeed = 1;
-        this.controls.maxPolarAngle = Math.PI / 2;
-        this.controls.minPolarAngle = Math.PI / 3;
+        // this.controls.maxPolarAngle = Math.PI / 2;
+        // this.controls.minPolarAngle = Math.PI / 3;
 
         this.gui
             .add(this.guiConf.autoRotation, "autoRotate")
