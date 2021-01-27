@@ -36,7 +36,7 @@ export default class GLTFModelController {
             },
             opacity: {
                 transparent: false,
-                opacity: 0.5,
+                opacity: 0.3,
             },
             glossy: {
                 glass: true,
