@@ -16,6 +16,8 @@ export default class GLTFModelController {
         if (this.modelContainer !== null) {
             console.log("GLTFModelController init()");
 
+            THREE.Cache.enabled = true;
+
             // gui
             this.gui = new dat.GUI({
                 name: "Bottle config",

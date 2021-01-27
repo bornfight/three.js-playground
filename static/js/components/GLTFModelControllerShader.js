@@ -16,6 +16,8 @@ export default class GLTFModelControllerShader {
         if (this.modelContainer !== null) {
             console.log("GLTFModelControllerShader init()");
 
+            THREE.Cache.enabled = true;
+
             this.gui = new dat.GUI({
                 name: "Bottle config",
             });
