@@ -8,27 +8,20 @@ export default class GLTFModelController {
     constructor() {
         this.DOM = {
             modelContainer: ".js-model-container",
-            states: {},
         };
-
-        this.modelContainer = document.querySelector(this.DOM.modelContainer);
-
-        this.scene;
-        this.camera;
-        this.renderer;
-        this.controls;
-        this.mixer;
-        this.clock = new THREE.Clock();
     }
 
     init() {
-        console.log("GLTFModelController init()");
-
+        this.modelContainer = document.querySelector(this.DOM.modelContainer);
         if (this.modelContainer !== null) {
+            console.log("GLTFModelController init()");
+
+            // gui
             this.gui = new dat.GUI({
                 name: "Bottle config",
             });
 
+            // gui config
             this.guiConf = {
                 light: {
                     lightIntensity: 0.8,
@@ -37,7 +30,7 @@ export default class GLTFModelController {
                     color: "#0fb3a0",
                 },
                 autoRotation: {
-                    autoRotate: false,
+                    autoRotate: true,
                 },
                 opacity: {
                     transparent: false,
@@ -62,7 +55,7 @@ export default class GLTFModelController {
             0.5,
             1000,
         );
-        this.camera.position.set(48, 32, 32);
+        this.camera.position.set(48, 20, 32);
 
         // scene
         this.scene = new THREE.Scene();
@@ -85,6 +78,7 @@ export default class GLTFModelController {
         this.dirLight.shadow.mapSize.height = 2048;
         this.scene.add(this.dirLight);
 
+        // add gui for light intensity
         this.gui
             .add(this.guiConf.light, "lightIntensity", 0, 1, 0.01)
             .onChange((value) => {
@@ -106,6 +100,40 @@ export default class GLTFModelController {
         grid.material.transparent = true;
         this.scene.add(grid);
 
+        this.loadModel();
+
+        // renderer
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.shadowMap.enabled = true;
+        this.modelContainer.appendChild(this.renderer.domElement);
+
+        // orbit controls
+        this.controls = new OrbitControls(
+            this.camera,
+            this.renderer.domElement,
+        );
+        this.controls.target.set(0, 10, 0);
+        this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
+        this.controls.autoRotateSpeed = 1;
+
+        this.gui
+            .add(this.guiConf.autoRotation, "autoRotate")
+            .onChange((value) => {
+                console.log(value);
+                if (value === false) {
+                    this.controls.autoRotate = false;
+                } else {
+                    this.controls.autoRotate = true;
+                }
+            });
+
+        // handle resize
+        window.addEventListener("resize", () => this.onWindowResize(), false);
+    }
+
+    loadModel() {
         // get model
         let model = this.modelContainer.getAttribute("data-model-source");
 
@@ -145,20 +173,19 @@ export default class GLTFModelController {
                     object.material.envMap = cubeMap;
                     object.material.needsUpdate = true;
 
+                    // store material
                     const initMaterial = object.material;
 
+                    // initial material setup
                     if (this.guiConf.opacity.transparent === false) {
                         object.material = material;
                     } else {
                         object.material = initMaterial;
                     }
 
+                    // if initial glass state is true
                     if (this.guiConf.glossy.glass) {
-                        object.material.refractionRatio = 1;
-                        object.material.reflectivity = 1;
-                        object.material.roughness = 0;
-                        object.material.clearcoat = 1;
-                        object.material.clearcoatRoughness = 0;
+                        this.glassOptions(object.material);
                     }
 
                     this.gui
@@ -177,11 +204,7 @@ export default class GLTFModelController {
                             }
 
                             if (this.guiConf.glossy.glass) {
-                                object.material.refractionRatio = 1;
-                                object.material.reflectivity = 1;
-                                object.material.roughness = 0;
-                                object.material.clearcoat = 1;
-                                object.material.clearcoatRoughness = 0;
+                                this.glassOptions(object.material);
                             }
                         });
 
@@ -201,17 +224,9 @@ export default class GLTFModelController {
                         .add(this.guiConf.glossy, "glass")
                         .onChange((value) => {
                             if (value) {
-                                object.material.refractionRatio = 1;
-                                object.material.reflectivity = 1;
-                                object.material.roughness = 0;
-                                object.material.clearcoat = 1;
-                                object.material.clearcoatRoughness = 0;
+                                this.glassOptions(object.material);
                             } else {
-                                object.material.refractionRatio = 0;
-                                object.material.reflectivity = 0;
-                                object.material.roughness = 0.5;
-                                object.material.clearcoat = 0;
-                                object.material.clearcoatRoughness = 0.5;
+                                this.matteOptions(object.material);
                             }
                         });
                 }
@@ -219,36 +234,22 @@ export default class GLTFModelController {
 
             this.scene.add(model.scene);
         });
+    }
 
-        // renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.shadowMap.enabled = true;
-        this.modelContainer.appendChild(this.renderer.domElement);
+    glassOptions(material) {
+        material.refractionRatio = 1;
+        material.reflectivity = 1;
+        material.roughness = 0;
+        material.clearcoat = 1;
+        material.clearcoatRoughness = 0;
+    }
 
-        // orbit controls
-        this.controls = new OrbitControls(
-            this.camera,
-            this.renderer.domElement,
-        );
-        this.controls.target.set(0, 10, 0);
-        this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
-        this.controls.autoRotateSpeed = 1;
-
-        this.gui
-            .add(this.guiConf.autoRotation, "autoRotate")
-            .onChange((value) => {
-                console.log(value);
-                if (value === false) {
-                    this.controls.autoRotate = false;
-                } else {
-                    this.controls.autoRotate = true;
-                }
-            });
-
-        // handle resize
-        window.addEventListener("resize", () => this.onWindowResize(), false);
+    matteOptions(material) {
+        material.refractionRatio = 0;
+        material.reflectivity = 0;
+        material.roughness = 0.5;
+        material.clearcoat = 0;
+        material.clearcoatRoughness = 0.5;
     }
 
     onWindowResize() {
