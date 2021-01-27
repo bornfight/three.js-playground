@@ -15,6 +15,7 @@ import GridHelper from "./helpers/GridHelper";
  */
 import NavigationController from "./components/NavigationController";
 import GLTFModelController from "./components/GLTFModelController";
+import GLTFModelControllerShader from "./components/GLTFModelControllerShader";
 
 /**
  * Check if document is ready cross-browser
@@ -84,4 +85,7 @@ ready(() => {
 
     const gltfModelController = new GLTFModelController();
     gltfModelController.init();
+
+    const gLTFModelControllerShader = new GLTFModelControllerShader();
+    gLTFModelControllerShader.init();
 });

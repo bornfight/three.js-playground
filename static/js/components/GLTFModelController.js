@@ -51,10 +51,6 @@ export default class GLTFModelController {
         if (this.modelContainer !== null) {
             this.initFBXModel();
             this.animate();
-        } else {
-            console.error(
-                `${this.DOM.modelContainer} does not exist in the DOM!`,
-            );
         }
     }
 
