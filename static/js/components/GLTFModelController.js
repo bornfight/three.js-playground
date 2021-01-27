@@ -61,7 +61,7 @@ export default class GLTFModelController {
             400,
         );
         this.camera.updateProjectionMatrix();
-        this.camera.position.set(35, 20, 32);
+        this.camera.position.set(35, 10, 32);
 
         // scene
         this.scene = new THREE.Scene();
@@ -147,6 +147,9 @@ export default class GLTFModelController {
         this.controls.target.set(0, 10, 0);
         this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
         this.controls.autoRotateSpeed = 1;
+        this.controls.enableZoom = false;
+        this.controls.enablePan = false;
+
         // this.controls.maxPolarAngle = Math.PI / 2;
         // this.controls.minPolarAngle = Math.PI / 3;
 
