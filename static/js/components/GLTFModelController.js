@@ -38,7 +38,7 @@ export default class GLTFModelController {
                     autoRotate: true,
                 },
                 opacity: {
-                    transparent: false,
+                    transparent: true,
                     opacity: 0.3,
                 },
                 glossy: {
