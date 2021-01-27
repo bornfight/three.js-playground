@@ -24,7 +24,7 @@ export default class GLTFModelController {
             // gui config
             this.guiConf = {
                 light: {
-                    lightIntensity: 0.8,
+                    lightIntensity: 6,
                 },
                 color: {
                     color: "#0fb3a0",
@@ -38,7 +38,7 @@ export default class GLTFModelController {
                 },
                 glossy: {
                     glass: true,
-                    emissiveColor: "#000000",
+                    emissiveColor: "#1e0f0f",
                 },
             };
 
@@ -53,8 +53,9 @@ export default class GLTFModelController {
             35,
             window.innerWidth / window.innerHeight,
             0.5,
-            1000,
+            400,
         );
+        this.camera.updateProjectionMatrix();
         this.camera.position.set(48, 20, 32);
 
         // scene
@@ -67,8 +68,18 @@ export default class GLTFModelController {
         hemiLight.position.set(0, 200, 0);
         this.scene.add(hemiLight);
 
+        this.ambientLight = new THREE.AmbientLight(0x404040);
+        this.ambientLight.matrixAutoUpdate = false;
+        this.scene.add(this.ambientLight);
+
+        // this is just back light - without it back side of model would be barely visible
+        this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 1);
+        this.dirSubLight.position.set(-20, 20, -20);
+        this.dirSubLight.matrixAutoUpdate = false;
+        this.scene.add(this.dirSubLight);
+
         this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
-        this.dirLight.position.set(20, 20, 20);
+        this.dirLight.position.set(20, 30, 20);
         this.dirLight.castShadow = true;
         this.dirLight.shadow.camera.top = 180;
         this.dirLight.shadow.camera.bottom = -100;
@@ -76,11 +87,12 @@ export default class GLTFModelController {
         this.dirLight.shadow.camera.right = 120;
         this.dirLight.shadow.mapSize.width = 2048;
         this.dirLight.shadow.mapSize.height = 2048;
+        this.dirLight.matrixAutoUpdate = false;
         this.scene.add(this.dirLight);
 
         // add gui for light intensity
         this.gui
-            .add(this.guiConf.light, "lightIntensity", 0, 1, 0.01)
+            .add(this.guiConf.light, "lightIntensity", 1, 10, 0.1)
             .onChange((value) => {
                 this.dirLight.intensity = value;
             });
@@ -90,6 +102,7 @@ export default class GLTFModelController {
             new THREE.PlaneBufferGeometry(2000, 2000, 10, 10),
             new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }),
         );
+        mesh.material.color.convertSRGBToLinear();
         mesh.rotation.x = -Math.PI / 2;
         mesh.receiveShadow = true;
         this.scene.add(mesh);
@@ -100,14 +113,23 @@ export default class GLTFModelController {
         grid.material.transparent = true;
         this.scene.add(grid);
 
-        this.loadModel();
-
         // renderer
-        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            depth: false,
+            powerPreference: "high-performance",
+        });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.renderer.shadowMap.enabled = true;
+        this.renderer.gammaFactor = 2.2;
+        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.physicallyCorrectLights = true;
+        this.renderer.shadowMap.type = THREE.PCFShadowMap;
         this.modelContainer.appendChild(this.renderer.domElement);
+
+        // loader
+        this.loadModel();
 
         // orbit controls
         this.controls = new OrbitControls(
@@ -146,6 +168,8 @@ export default class GLTFModelController {
                 depthFunc: false,
             });
 
+            material.color.convertSRGBToLinear();
+
             model.scene.traverse((object) => {
                 if (object.isMesh) {
                     object.position.y = 0.1;
@@ -156,6 +180,8 @@ export default class GLTFModelController {
                     object.material.opacity = this.guiConf.opacity.opacity;
                     object.material.emissive.set(this.guiConf.glossy.emissiveColor);
                     object.material.depthFunc = false;
+                    object.material.color.convertSRGBToLinear();
+                    object.matrixAutoUpdate = false;
 
                     // reflection map
                     const path = `/three.js-playground/static/images/maps/`;
@@ -170,8 +196,9 @@ export default class GLTFModelController {
 
                     const cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
                     cubeMap.format = THREE.RGBFormat;
+                    cubeMap.encoding = THREE.sRGBEncoding;
                     object.material.envMap = cubeMap;
-                    object.material.needsUpdate = true;
+                    object.material.needsUpdate = false;
 
                     // store material
                     const initMaterial = object.material;
@@ -233,6 +260,9 @@ export default class GLTFModelController {
             });
 
             this.scene.add(model.scene);
+            this.dirLight.updateMatrix();
+            this.dirSubLight.updateMatrix();
+            this.ambientLight.updateMatrix();
         });
     }
 
