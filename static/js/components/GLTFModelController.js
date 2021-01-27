@@ -45,6 +45,9 @@ export default class GLTFModelController {
                     glass: true,
                     emissiveColor: "#1e0f0f",
                 },
+                grid: {
+                    showGrid: true,
+                },
             };
 
             this.initFBXModel();
@@ -116,10 +119,24 @@ export default class GLTFModelController {
         // this.scene.add(mesh);
 
         // ground grid
-        // const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
-        // grid.material.opacity = 0.3;
-        // grid.material.transparent = true;
-        // this.scene.add(grid);
+        const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+        grid.material.opacity = 0.1;
+        grid.material.transparent = true;
+        this.scene.add(grid);
+        if (!this.guiConf.grid.showGrid) {
+            grid.visible = false;
+        }
+
+        // add gui for grid
+        this.gui
+            .add(this.guiConf.grid, "showGrid")
+            .onChange((value) => {
+                if (value) {
+                    grid.visible = true;
+                } else {
+                    grid.visible = false;
+                }
+            });
 
         // renderer
         this.renderer = new THREE.WebGLRenderer({
