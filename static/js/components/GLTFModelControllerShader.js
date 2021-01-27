@@ -19,36 +19,36 @@ export default class GLTFModelControllerShader {
         this.controls;
         this.mixer;
         this.clock = new THREE.Clock();
-
-        this.gui = new dat.GUI({
-            name: "Bottle config",
-        });
-
-        this.guiConf = {
-            light: {
-                lightIntensity: 0.8,
-            },
-            color: {
-                color: "#0fb3a0",
-            },
-            autoRotation: {
-                autoRotate: false,
-            },
-            opacity: {
-                transparent: false,
-                opacity: 0.5,
-            },
-            glossy: {
-                glass: true,
-                emissiveColor: "#000000",
-            },
-        };
     }
 
     init() {
         console.log("GLTFModelController init()");
 
         if (this.modelContainer !== null) {
+            this.gui = new dat.GUI({
+                name: "Bottle config",
+            });
+
+            this.guiConf = {
+                light: {
+                    lightIntensity: 0.8,
+                },
+                color: {
+                    color: "#0fb3a0",
+                },
+                autoRotation: {
+                    autoRotate: false,
+                },
+                opacity: {
+                    transparent: false,
+                    opacity: 0.5,
+                },
+                glossy: {
+                    glass: true,
+                    emissiveColor: "#000000",
+                },
+            };
+
             this.initFBXModel();
             this.animate();
         }

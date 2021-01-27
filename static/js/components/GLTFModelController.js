@@ -19,36 +19,36 @@ export default class GLTFModelController {
         this.controls;
         this.mixer;
         this.clock = new THREE.Clock();
-
-        this.gui = new dat.GUI({
-            name: "Bottle config",
-        });
-
-        this.guiConf = {
-            light: {
-                lightIntensity: 0.8,
-            },
-            color: {
-                color: "#0fb3a0",
-            },
-            autoRotation: {
-                autoRotate: false,
-            },
-            opacity: {
-                transparent: false,
-                opacity: 0.3,
-            },
-            glossy: {
-                glass: true,
-                emissiveColor: "#000000",
-            },
-        };
     }
 
     init() {
         console.log("GLTFModelController init()");
 
         if (this.modelContainer !== null) {
+            this.gui = new dat.GUI({
+                name: "Bottle config",
+            });
+
+            this.guiConf = {
+                light: {
+                    lightIntensity: 0.8,
+                },
+                color: {
+                    color: "#0fb3a0",
+                },
+                autoRotation: {
+                    autoRotate: false,
+                },
+                opacity: {
+                    transparent: false,
+                    opacity: 0.3,
+                },
+                glossy: {
+                    glass: true,
+                    emissiveColor: "#000000",
+                },
+            };
+
             this.initFBXModel();
             this.animate();
         }
@@ -75,7 +75,7 @@ export default class GLTFModelController {
         this.scene.add(hemiLight);
 
         this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
-        this.dirLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
+        this.dirLight.position.set(20, 20, 20);
         this.dirLight.castShadow = true;
         this.dirLight.shadow.camera.top = 180;
         this.dirLight.shadow.camera.bottom = -100;
@@ -97,7 +97,7 @@ export default class GLTFModelController {
             new THREE.MeshPhongMaterial({ color: 0x999999, depthWrite: false }),
         );
         mesh.rotation.x = -Math.PI / 2;
-        mesh.receiveShadow = false;
+        mesh.receiveShadow = true;
         this.scene.add(mesh);
 
         // ground grid
@@ -121,6 +121,7 @@ export default class GLTFModelController {
             model.scene.traverse((object) => {
                 if (object.isMesh) {
                     object.position.y = 0.1;
+                    object.castShadow = true;
                     object.material.side = 2;
                     object.material.shadowSide = 1;
                     object.material.metalness = 0;
@@ -260,7 +261,6 @@ export default class GLTFModelController {
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
-        this.dirLight.position.set(this.camera.position.x, this.camera.position.y, this.camera.position.z);
         this.controls.update();
     }
 }
