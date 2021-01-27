@@ -4,10 +4,10 @@ import * as dat from "dat.gui";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-export default class GLTFModelController {
+export default class GLTFModelControllerEnvironment {
     constructor() {
         this.DOM = {
-            modelContainer: ".js-model-container",
+            modelContainer: ".js-model-container-environment",
         };
     }
 
@@ -45,8 +45,9 @@ export default class GLTFModelController {
                     glass: true,
                     emissiveColor: "#1e0f0f",
                 },
-                grid: {
-                    showGrid: false,
+                environment: {
+                    showEnvironment: true,
+                    color: "#0005a0",
                 },
             };
 
@@ -61,7 +62,7 @@ export default class GLTFModelController {
             35,
             this.width / this.height,
             0.5,
-            400,
+            600,
         );
         this.camera.position.set(35, 10, 32);
 
@@ -82,12 +83,12 @@ export default class GLTFModelController {
 
         // this is just back light - without it back side of model would be barely visible
         this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 1);
-        this.dirSubLight.position.set(-20, 20, -20);
+        this.dirSubLight.position.set(-40, 20, -20);
         this.dirSubLight.matrixAutoUpdate = false;
         this.scene.add(this.dirSubLight);
 
         this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
-        this.dirLight.position.set(20, 30, 20);
+        this.dirLight.position.set(40, 20, 20);
         this.dirLight.castShadow = true;
         this.dirLight.shadow.camera.top = 180;
         this.dirLight.shadow.camera.bottom = -100;
@@ -108,29 +109,34 @@ export default class GLTFModelController {
             });
 
         // ground
-        // const mesh = new THREE.Mesh(
-        //     new THREE.PlaneBufferGeometry(1000, 1000, 1, 1),
-        //     new THREE.MeshPhongMaterial({ color: 0xeeeeee, depthWrite: false }),
-        // );
-        // mesh.material.color.convertSRGBToLinear();
-        // mesh.rotation.x = -Math.PI / 2;
-        // mesh.receiveShadow = true;
-        // this.scene.add(mesh);
+        this.environment = new THREE.Mesh(
+            new THREE.BoxBufferGeometry(100, 100, 100),
+            new THREE.MeshPhongMaterial({
+                depthWrite: false,
+                side: THREE.DoubleSide,
+            }),
+        );
 
-        // ground grid
-        const grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
-        grid.material.opacity = 0.1;
-        grid.material.transparent = true;
-        this.scene.add(grid);
-        if (!this.guiConf.grid.showGrid) {
-            grid.visible = false;
+        this.environment.position.y = 50;
+        this.environment.receiveShadow = true;
+        this.environment.material.color.set(this.guiConf.environment.color);
+        this.scene.add(this.environment);
+
+        // add gui for plane
+        if (!this.guiConf.environment.showEnvironment) {
+            this.environment.visible = false;
         }
 
-        // add gui for grid
         this.gui
-            .add(this.guiConf.grid, "showGrid")
+            .add(this.guiConf.environment, "showEnvironment")
             .onChange((value) => {
-                grid.visible = !!value;
+                this.environment.visible = !!value;
+            });
+
+        this.gui
+            .addColor(this.guiConf.environment, "color")
+            .onChange((value) => {
+                this.environment.material.color.set(value);
             });
 
         // renderer
@@ -162,18 +168,14 @@ export default class GLTFModelController {
         this.controls.enableZoom = false;
         this.controls.enablePan = false;
 
-        // this.controls.maxPolarAngle = Math.PI / 2;
-        // this.controls.minPolarAngle = Math.PI / 3;
+        this.controls.maxPolarAngle = Math.PI / 1.8;
+        this.controls.minPolarAngle = Math.PI / 3.5;
 
         this.gui
             .add(this.guiConf.autoRotation, "autoRotate")
             .onChange((value) => {
                 console.log(value);
-                if (value === false) {
-                    this.controls.autoRotate = false;
-                } else {
-                    this.controls.autoRotate = true;
-                }
+                this.controls.autoRotate = value !== false;
             });
 
         // handle resize
@@ -286,8 +288,6 @@ export default class GLTFModelController {
 
             this.scene.add(model.scene);
             this.dirLight.updateMatrix();
-            this.dirSubLight.updateMatrix();
-            this.ambientLight.updateMatrix();
         });
     }
 
@@ -309,6 +309,7 @@ export default class GLTFModelController {
 
     onWindowResize() {
         this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix();
 
         this.renderer.setSize(this.width, this.height);
     }

@@ -5,6 +5,11 @@
     height: 100%;
     width: 100%;
     cursor: grab;
+
+    .is-white & {
+        left: 0;
+        width: 140%;
+    }
 }
 
 .c-fbx-example-wrapper {
