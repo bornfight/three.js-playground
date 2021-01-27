@@ -139,6 +139,8 @@ export default class GLTFModelController {
         this.controls.target.set(0, 10, 0);
         this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
         this.controls.autoRotateSpeed = 1;
+        this.controls.maxPolarAngle = Math.PI / 2;
+        this.controls.minPolarAngle = Math.PI / 3;
 
         this.gui
             .add(this.guiConf.autoRotation, "autoRotate")
