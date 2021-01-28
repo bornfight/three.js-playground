@@ -48,7 +48,7 @@ export default class GLTFModelControllerEnvironment {
                     color: "#0005a0",
                 },
                 autoRotation: {
-                    autoRotate: false,
+                    autoRotate: true,
                 },
                 opacity: {
                     transparent: false,
@@ -64,27 +64,23 @@ export default class GLTFModelControllerEnvironment {
             };
 
             this.colorWrapper = document.querySelector(this.DOM.colorWrapper);
-            this.colorInput = document.querySelector(this.DOM.colorInput);
-            this.colorPreview = document.querySelector(this.DOM.colorPreview);
+            this.colorInput = this.colorWrapper.querySelector(this.DOM.colorInput);
+            this.colorPreview = this.colorWrapper.querySelector(this.DOM.colorPreview);
 
             this.opacityWrapper = document.querySelector(this.DOM.opacityWrapper);
-            this.opacityInput = document.querySelector(this.DOM.opacityInput);
-            this.opacityPreview = document.querySelector(this.DOM.opacityPreview);
+            this.opacityInput = this.opacityWrapper.querySelector(this.DOM.opacityInput);
+            this.opacityPreview = this.opacityWrapper.querySelector(this.DOM.opacityPreview);
 
             this.transparentWrapper = document.querySelector(this.DOM.transparentWrapper);
             this.transparentInputs = this.transparentWrapper.querySelectorAll("input");
 
             this.transparentInputs.forEach((input) => {
-                if (
-                    this.guiConf.opacity.transparent &&
-                    input.value === "transparent"
-                ) {
+                if (this.guiConf.opacity.transparent && input.value === "transparent") {
                     input.checked = true;
-                } else if (
-                    !this.guiConf.opacity.transparent &&
-                    input.value === "tinted"
-                ) {
+                    this.opacityWrapper.style.display = "";
+                } else if (!this.guiConf.opacity.transparent && input.value === "tinted") {
                     input.checked = true;
+                    this.opacityWrapper.style.display = "none";
                 }
             });
 
@@ -316,6 +312,7 @@ export default class GLTFModelControllerEnvironment {
                         input.addEventListener("change", () => {
                             object.material.transparent = input.value === "transparent";
                             object.material.depthWrite = input.value !== "transparent";
+                            this.opacityWrapper.style.display = input.value === "transparent" ? "" : "none";
 
                             object.material.envMap = input.value !== "transparent" ? null : cubeMap;
                             object.material.side = input.value !== "transparent" ? null : 2;

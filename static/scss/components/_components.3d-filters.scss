@@ -4,15 +4,30 @@
     padding-top: 20px;
     width: 100%;
 
+    &__label {
+        width: 25%;
+    }
+
     &__input {
+        width: 50%;
         display: flex;
         flex-wrap: wrap;
     }
 
-    fieldset {
-        display: inline-flex;
+    &__value{
+        width: 25%;
+    }
+
+    label {
+        padding-bottom: 5px;
+        width: 100%;
+        display: flex;
         flex-wrap: wrap;
         align-items: center;
+
+        p{
+            padding-left: 5px;
+        }
     }
 
     // overrides
