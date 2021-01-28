@@ -54,8 +54,8 @@ export default class GLTFModelControllerEnvironment {
                     transparent: false,
                     opacity: 0.3,
                 },
-                glossy: {
-                    glass: true,
+                finish: {
+                    clear: true,
                 },
                 environment: {
                     showEnvironment: true,
@@ -89,12 +89,12 @@ export default class GLTFModelControllerEnvironment {
 
             this.finishInputs.forEach((input) => {
                 if (
-                    this.guiConf.glossy.glass &&
+                    this.guiConf.finish.clear &&
                     input.value === "clear"
                 ) {
                     input.checked = true;
                 } else if (
-                    !this.guiConf.glossy.glass &&
+                    !this.guiConf.finish.clear &&
                     input.value === "matte"
                 ) {
                     input.checked = true;
@@ -290,7 +290,7 @@ export default class GLTFModelControllerEnvironment {
                     }
 
                     // if initial glass state is true
-                    if (this.guiConf.glossy.glass) {
+                    if (this.guiConf.finish.clear) {
                         this.glassOptions(object.material);
                     }
 
