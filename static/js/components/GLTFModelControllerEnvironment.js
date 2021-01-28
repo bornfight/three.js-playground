@@ -35,7 +35,7 @@ export default class GLTFModelControllerEnvironment {
                     color: "#0005a0",
                 },
                 autoRotation: {
-                    autoRotate: true,
+                    autoRotate: false,
                 },
                 opacity: {
                     transparent: true,
@@ -43,10 +43,9 @@ export default class GLTFModelControllerEnvironment {
                 },
                 glossy: {
                     glass: true,
-                    emissiveColor: "#1e0f0f",
                 },
                 environment: {
-                    showEnvironment: false,
+                    showEnvironment: true,
                     color: "#0005a0",
                 },
             };
@@ -69,8 +68,6 @@ export default class GLTFModelControllerEnvironment {
         // scene
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xffffff);
-        // this.scene.background = new THREE.Color(0xa0a0a0);
-        // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
 
         // lights
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
@@ -102,11 +99,11 @@ export default class GLTFModelControllerEnvironment {
         this.scene.add(this.dirLight);
 
         // add gui for light intensity
-        this.gui
-            .add(this.guiConf.light, "lightIntensity", 1, 10, 0.1)
-            .onChange((value) => {
-                this.dirLight.intensity = value;
-            });
+        // this.gui
+        //     .add(this.guiConf.light, "lightIntensity", 1, 10, 0.1)
+        //     .onChange((value) => {
+        //         this.dirLight.intensity = value;
+        //     });
 
         // ground
         this.environment = new THREE.Mesh(
@@ -129,17 +126,17 @@ export default class GLTFModelControllerEnvironment {
             this.environment.visible = false;
         }
 
-        this.gui
-            .add(this.guiConf.environment, "showEnvironment")
-            .onChange((value) => {
-                this.environment.visible = !!value;
-            });
+        // this.gui
+        //     .add(this.guiConf.environment, "showEnvironment")
+        //     .onChange((value) => {
+        //         this.environment.visible = !!value;
+        //     });
 
-        this.gui
-            .addColor(this.guiConf.environment, "color")
-            .onChange((value) => {
-                this.environment.material.color.set(value);
-            });
+        // this.gui
+        //     .addColor(this.guiConf.environment, "color")
+        //     .onChange((value) => {
+        //         this.environment.material.color.set(value);
+        //     });
 
         // renderer
         this.renderer = new THREE.WebGLRenderer({
@@ -173,12 +170,12 @@ export default class GLTFModelControllerEnvironment {
         this.controls.maxPolarAngle = Math.PI / 1.8;
         this.controls.minPolarAngle = Math.PI / 3.5;
 
-        this.gui
-            .add(this.guiConf.autoRotation, "autoRotate")
-            .onChange((value) => {
-                console.log(value);
-                this.controls.autoRotate = value !== false;
-            });
+        // this.gui
+        //     .add(this.guiConf.autoRotation, "autoRotate")
+        //     .onChange((value) => {
+        //         console.log(value);
+        //         this.controls.autoRotate = value !== false;
+        //     });
 
         // handle resize
         window.addEventListener("resize", () => this.onWindowResize(), false);
@@ -191,12 +188,6 @@ export default class GLTFModelControllerEnvironment {
         // loader
         const loader = new GLTFLoader();
         loader.load(model, (model) => {
-            // dynamically change material
-            let material = new THREE.MeshPhysicalMaterial({
-                color: this.guiConf.color.color,
-                depthFunc: false,
-            });
-
             model.scene.traverse((object) => {
                 if (object.isMesh) {
                     object.position.y = 0.1;
@@ -205,8 +196,10 @@ export default class GLTFModelControllerEnvironment {
                     object.material.shadowSide = 1;
                     object.material.metalness = 0;
                     object.material.opacity = this.guiConf.opacity.opacity;
-                    object.material.emissive.set(this.guiConf.glossy.emissiveColor);
                     object.material.depthFunc = false;
+                    object.material.depthWrite = !this.guiConf.opacity.transparent;
+                    object.material.transparent = this.guiConf.opacity.transparent;
+                    object.material.color.set(this.guiConf.color.color);
                     object.material.color.convertSRGBToLinear();
                     object.matrixAutoUpdate = false;
 
@@ -224,17 +217,10 @@ export default class GLTFModelControllerEnvironment {
                     const cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
                     cubeMap.format = THREE.RGBFormat;
                     cubeMap.encoding = THREE.sRGBEncoding;
-                    object.material.envMap = cubeMap;
                     object.material.needsUpdate = false;
 
-                    // store material
-                    const initMaterial = object.material;
-
-                    // initial material setup
-                    if (this.guiConf.opacity.transparent === false) {
-                        object.material = material;
-                    } else {
-                        object.material = initMaterial;
+                    if (this.guiConf.opacity.transparent) {
+                        object.material.envMap = cubeMap;
                     }
 
                     // if initial glass state is true
@@ -251,27 +237,26 @@ export default class GLTFModelControllerEnvironment {
                     this.gui
                         .add(this.guiConf.opacity, "transparent")
                         .onChange((value) => {
-                            if (value === false) {
-                                object.material = material;
+                            object.material.transparent = value;
+                            object.material.depthWrite = !value;
+
+                            if (!value) {
+                                object.material.envMap = null;
+                                object.material.side = null;
+                                object.material.shadowSide = null;
                             } else {
-                                object.material = initMaterial;
+                                object.material.envMap = cubeMap;
+                                object.material.side = 2;
+                                object.material.shadowSide = 1;
                             }
 
-                            if (this.guiConf.glossy.glass) {
-                                this.glassOptions(object.material);
-                            }
+                            object.material.needsUpdate = true;
                         });
 
                     this.gui
-                        .add(this.guiConf.opacity, "opacity", 0.25, 0.75, 0.01)
+                        .add(this.guiConf.opacity, "opacity", 0, 1, 0.01)
                         .onChange((opacityValue) => {
                             object.material.opacity = opacityValue;
-                        });
-
-                    this.gui
-                        .addColor(this.guiConf.glossy, "emissiveColor")
-                        .onChange((colorValue) => {
-                            object.material.emissive.set(colorValue);
                         });
 
                     this.gui
