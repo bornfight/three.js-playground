@@ -324,9 +324,13 @@ var THREE = _interopRequireWildcard(require("three"));
 
 var dat = _interopRequireWildcard(require("dat.gui"));
 
+var _simpleColorPicker = _interopRequireDefault(require("simple-color-picker"));
+
 var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
 
 var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -343,20 +347,32 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
     _classCallCheck(this, GLTFModelControllerEnvironment);
 
     this.DOM = {
-      modelContainer: ".js-model-container-environment"
+      modelContainer: ".js-model-container-environment",
+      // filters
+      // color
+      colorWrapper: ".js-color",
+      colorInput: ".js-color-input",
+      colorPreview: ".js-color-preview",
+      // opacity
+      opacityWrapper: ".js-opacity",
+      opacityInput: ".js-opacity-input",
+      opacityPreview: ".js-opacity-preview",
+      // transparent
+      transparentWrapper: ".js-transparent",
+      // finish
+      finishWrapper: ".js-finish"
     };
   }
 
   _createClass(GLTFModelControllerEnvironment, [{
     key: "init",
     value: function init() {
+      var _this = this;
+
       this.modelContainer = document.querySelector(this.DOM.modelContainer);
 
       if (this.modelContainer !== null) {
-        console.log("GLTFModelController init()");
-        this.width = this.modelContainer.offsetWidth;
-        this.height = this.modelContainer.offsetHeight;
-        THREE.Cache.enabled = true; // gui
+        console.log("GLTFModelController init()"); // gui
 
         this.gui = new dat.GUI({
           name: "Bottle config"
@@ -373,7 +389,7 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
             autoRotate: false
           },
           opacity: {
-            transparent: true,
+            transparent: false,
             opacity: 0.3
           },
           glossy: {
@@ -384,6 +400,36 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
             color: "#0005a0"
           }
         };
+        this.colorWrapper = document.querySelector(this.DOM.colorWrapper);
+        this.colorInput = document.querySelector(this.DOM.colorInput);
+        this.colorPreview = document.querySelector(this.DOM.colorPreview);
+        this.opacityWrapper = document.querySelector(this.DOM.opacityWrapper);
+        this.opacityInput = document.querySelector(this.DOM.opacityInput);
+        this.opacityPreview = document.querySelector(this.DOM.opacityPreview);
+        this.transparentWrapper = document.querySelector(this.DOM.transparentWrapper);
+        this.transparentInputs = this.transparentWrapper.querySelectorAll("input");
+        this.transparentInputs.forEach(function (input) {
+          if (_this.guiConf.opacity.transparent && input.value === "transparent") {
+            input.checked = true;
+          } else if (!_this.guiConf.opacity.transparent && input.value === "tinted") {
+            input.checked = true;
+          }
+        });
+        this.finishWrapper = document.querySelector(this.DOM.finishWrapper);
+        this.finishInputs = this.finishWrapper.querySelectorAll("input");
+        this.finishInputs.forEach(function (input) {
+          if (_this.guiConf.glossy.glass && input.value === "clear") {
+            input.checked = true;
+          } else if (!_this.guiConf.glossy.glass && input.value === "matte") {
+            input.checked = true;
+          }
+        });
+        this.colorPicker = new _simpleColorPicker.default();
+        this.colorPicker.appendTo(this.colorInput);
+        this.colorPicker.setColor(this.guiConf.color.color);
+        this.width = this.modelContainer.offsetWidth;
+        this.height = this.modelContainer.offsetHeight;
+        THREE.Cache.enabled = true;
         this.initFBXModel();
         this.animate();
       }
@@ -391,7 +437,7 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
   }, {
     key: "initFBXModel",
     value: function initFBXModel() {
-      var _this = this;
+      var _this2 = this;
 
       // camera
       this.camera = new THREE.PerspectiveCamera(35, this.width / this.height, 0.5, 600);
@@ -489,13 +535,13 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
       // handle resize
 
       window.addEventListener("resize", function () {
-        return _this.onWindowResize();
+        return _this2.onWindowResize();
       }, false);
     }
   }, {
     key: "loadModel",
     value: function loadModel() {
-      var _this2 = this;
+      var _this3 = this;
 
       // get model
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
@@ -509,12 +555,18 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
             object.material.side = 2;
             object.material.shadowSide = 1;
             object.material.metalness = 0;
-            object.material.opacity = _this2.guiConf.opacity.opacity;
+            object.material.opacity = _this3.guiConf.opacity.opacity;
             object.material.depthFunc = false;
-            object.material.depthWrite = !_this2.guiConf.opacity.transparent;
-            object.material.transparent = _this2.guiConf.opacity.transparent;
-            object.material.color.set(_this2.guiConf.color.color);
+            object.material.depthWrite = !_this3.guiConf.opacity.transparent;
+            object.material.transparent = _this3.guiConf.opacity.transparent;
+            object.material.color.set(_this3.colorPicker.getHexNumber());
             object.material.color.convertSRGBToLinear();
+
+            if (!_this3.guiConf.opacity.transparent) {
+              object.material.side = null;
+              object.material.shadowSide = null;
+            }
+
             object.matrixAutoUpdate = false; // reflection map
 
             var path = "/three.js-playground/static/images/maps/";
@@ -524,68 +576,71 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
             cubeMap.encoding = THREE.sRGBEncoding;
             object.material.needsUpdate = false;
 
-            if (_this2.guiConf.opacity.transparent) {
+            if (_this3.guiConf.opacity.transparent) {
               object.material.envMap = cubeMap;
             } // if initial glass state is true
 
 
-            if (_this2.guiConf.glossy.glass) {
-              _this2.glassOptions(object.material);
-            }
+            if (_this3.guiConf.glossy.glass) {
+              _this3.glassOptions(object.material);
+            } // color change
 
-            _this2.gui.addColor(_this2.guiConf.color, "color").onChange(function (colorValue) {
-              object.material.color.set(colorValue);
-            });
 
-            _this2.gui.add(_this2.guiConf.opacity, "transparent").onChange(function (value) {
-              object.material.transparent = value;
-              object.material.depthWrite = !value;
+            _this3.colorPicker.onChange(function () {
+              object.material.color.set(_this3.colorPicker.getHexNumber());
+              _this3.colorPreview.innerHTML = _this3.colorPicker.getHexString();
+            }); // opacity change
 
-              if (!value) {
-                object.material.envMap = null;
-                object.material.side = null;
-                object.material.shadowSide = null;
-              } else {
-                object.material.envMap = cubeMap;
-                object.material.side = 2;
-                object.material.shadowSide = 1;
-              }
 
-              object.material.needsUpdate = true;
-            });
+            _this3.opacityInput.value = _this3.guiConf.opacity.opacity * 100;
 
-            _this2.gui.add(_this2.guiConf.opacity, "opacity", 0, 1, 0.01).onChange(function (opacityValue) {
-              object.material.opacity = opacityValue;
-            });
+            _this3.opacityInput.addEventListener("input", function () {
+              object.material.opacity = _this3.opacityInput.value / 100;
+              _this3.opacityPreview.innerHTML = "".concat(_this3.opacityInput.value, "%");
+            }); // transparency change
 
-            _this2.gui.add(_this2.guiConf.glossy, "glass").onChange(function (value) {
-              if (value) {
-                _this2.glassOptions(object.material);
-              } else {
-                _this2.matteOptions(object.material);
-              }
+
+            _this3.transparentInputs.forEach(function (input) {
+              input.addEventListener("change", function () {
+                object.material.transparent = input.value === "transparent";
+                object.material.depthWrite = input.value !== "transparent";
+                object.material.envMap = input.value !== "transparent" ? null : cubeMap;
+                object.material.side = input.value !== "transparent" ? null : 2;
+                object.material.shadowSide = input.value !== "transparent" ? null : 1;
+                object.material.needsUpdate = true;
+              });
+            }); // finish change
+
+
+            _this3.finishInputs.forEach(function (input) {
+              input.addEventListener("change", function () {
+                if (input.value === "clear") {
+                  _this3.glassOptions(object.material);
+                } else {
+                  _this3.matteOptions(object.material);
+                }
+              });
             });
           }
         });
 
-        _this2.scene.add(model.scene);
+        _this3.scene.add(model.scene);
 
-        _this2.dirLight.updateMatrix();
+        _this3.dirLight.updateMatrix();
 
-        _this2.dirSubLight.updateMatrix();
+        _this3.dirSubLight.updateMatrix();
 
-        _this2.ambientLight.updateMatrix();
+        _this3.ambientLight.updateMatrix();
       });
     }
   }, {
     key: "glassOptions",
     value: function glassOptions(material) {
-      material.refractionRatio = 50;
+      material.refractionRatio = 1;
       material.reflectivity = 1;
       material.roughness = 0;
       material.clearcoat = 1;
       material.clearcoatRoughness = 0;
-      material.metalness = 0;
     }
   }, {
     key: "matteOptions",
@@ -606,10 +661,10 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
   }, {
     key: "animate",
     value: function animate() {
-      var _this3 = this;
+      var _this4 = this;
 
       requestAnimationFrame(function () {
-        return _this3.animate();
+        return _this4.animate();
       });
       this.renderer.render(this.scene, this.camera);
       this.controls.update();
@@ -621,7 +676,7 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
 
 exports.default = GLTFModelControllerEnvironment;
 
-},{"dat.gui":"dat.gui","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],3:[function(require,module,exports){
+},{"dat.gui":"dat.gui","simple-color-picker":"simple-color-picker","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],3:[function(require,module,exports){
 "use strict";
 
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }

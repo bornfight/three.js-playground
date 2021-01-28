@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import * as dat from "dat.gui";
+import ColorPicker from "simple-color-picker";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -8,6 +9,23 @@ export default class GLTFModelControllerEnvironment {
     constructor() {
         this.DOM = {
             modelContainer: ".js-model-container-environment",
+
+            // filters
+            // color
+            colorWrapper: ".js-color",
+            colorInput: ".js-color-input",
+            colorPreview: ".js-color-preview",
+
+            // opacity
+            opacityWrapper: ".js-opacity",
+            opacityInput: ".js-opacity-input",
+            opacityPreview: ".js-opacity-preview",
+
+            // transparent
+            transparentWrapper: ".js-transparent",
+
+            // finish
+            finishWrapper: ".js-finish",
         };
     }
 
@@ -15,11 +33,6 @@ export default class GLTFModelControllerEnvironment {
         this.modelContainer = document.querySelector(this.DOM.modelContainer);
         if (this.modelContainer !== null) {
             console.log("GLTFModelController init()");
-
-            this.width = this.modelContainer.offsetWidth;
-            this.height = this.modelContainer.offsetHeight;
-
-            THREE.Cache.enabled = true;
 
             // gui
             this.gui = new dat.GUI({
@@ -38,7 +51,7 @@ export default class GLTFModelControllerEnvironment {
                     autoRotate: false,
                 },
                 opacity: {
-                    transparent: true,
+                    transparent: false,
                     opacity: 0.3,
                 },
                 glossy: {
@@ -49,6 +62,57 @@ export default class GLTFModelControllerEnvironment {
                     color: "#0005a0",
                 },
             };
+
+            this.colorWrapper = document.querySelector(this.DOM.colorWrapper);
+            this.colorInput = document.querySelector(this.DOM.colorInput);
+            this.colorPreview = document.querySelector(this.DOM.colorPreview);
+
+            this.opacityWrapper = document.querySelector(this.DOM.opacityWrapper);
+            this.opacityInput = document.querySelector(this.DOM.opacityInput);
+            this.opacityPreview = document.querySelector(this.DOM.opacityPreview);
+
+            this.transparentWrapper = document.querySelector(this.DOM.transparentWrapper);
+            this.transparentInputs = this.transparentWrapper.querySelectorAll("input");
+
+            this.transparentInputs.forEach((input) => {
+                if (
+                    this.guiConf.opacity.transparent &&
+                    input.value === "transparent"
+                ) {
+                    input.checked = true;
+                } else if (
+                    !this.guiConf.opacity.transparent &&
+                    input.value === "tinted"
+                ) {
+                    input.checked = true;
+                }
+            });
+
+            this.finishWrapper = document.querySelector(this.DOM.finishWrapper);
+            this.finishInputs = this.finishWrapper.querySelectorAll("input");
+
+            this.finishInputs.forEach((input) => {
+                if (
+                    this.guiConf.glossy.glass &&
+                    input.value === "clear"
+                ) {
+                    input.checked = true;
+                } else if (
+                    !this.guiConf.glossy.glass &&
+                    input.value === "matte"
+                ) {
+                    input.checked = true;
+                }
+            });
+
+            this.colorPicker = new ColorPicker();
+            this.colorPicker.appendTo(this.colorInput);
+            this.colorPicker.setColor(this.guiConf.color.color);
+
+            this.width = this.modelContainer.offsetWidth;
+            this.height = this.modelContainer.offsetHeight;
+
+            THREE.Cache.enabled = true;
 
             this.initFBXModel();
             this.animate();
@@ -199,8 +263,14 @@ export default class GLTFModelControllerEnvironment {
                     object.material.depthFunc = false;
                     object.material.depthWrite = !this.guiConf.opacity.transparent;
                     object.material.transparent = this.guiConf.opacity.transparent;
-                    object.material.color.set(this.guiConf.color.color);
+                    object.material.color.set(this.colorPicker.getHexNumber());
                     object.material.color.convertSRGBToLinear();
+
+                    if (!this.guiConf.opacity.transparent) {
+                        object.material.side = null;
+                        object.material.shadowSide = null;
+                    }
+
                     object.matrixAutoUpdate = false;
 
                     // reflection map
@@ -228,46 +298,43 @@ export default class GLTFModelControllerEnvironment {
                         this.glassOptions(object.material);
                     }
 
-                    this.gui
-                        .addColor(this.guiConf.color, "color")
-                        .onChange((colorValue) => {
-                            object.material.color.set(colorValue);
-                        });
+                    // color change
+                    this.colorPicker.onChange(() => {
+                        object.material.color.set(this.colorPicker.getHexNumber());
+                        this.colorPreview.innerHTML = this.colorPicker.getHexString();
+                    });
 
-                    this.gui
-                        .add(this.guiConf.opacity, "transparent")
-                        .onChange((value) => {
-                            object.material.transparent = value;
-                            object.material.depthWrite = !value;
+                    // opacity change
+                    this.opacityInput.value = this.guiConf.opacity.opacity * 100;
+                    this.opacityInput.addEventListener("input", () => {
+                        object.material.opacity = this.opacityInput.value / 100;
+                        this.opacityPreview.innerHTML = `${this.opacityInput.value}%`;
+                    });
 
-                            if (!value) {
-                                object.material.envMap = null;
-                                object.material.side = null;
-                                object.material.shadowSide = null;
-                            } else {
-                                object.material.envMap = cubeMap;
-                                object.material.side = 2;
-                                object.material.shadowSide = 1;
-                            }
+                    // transparency change
+                    this.transparentInputs.forEach((input) => {
+                        input.addEventListener("change", () => {
+                            object.material.transparent = input.value === "transparent";
+                            object.material.depthWrite = input.value !== "transparent";
+
+                            object.material.envMap = input.value !== "transparent" ? null : cubeMap;
+                            object.material.side = input.value !== "transparent" ? null : 2;
+                            object.material.shadowSide = input.value !== "transparent" ? null : 1;
 
                             object.material.needsUpdate = true;
                         });
+                    });
 
-                    this.gui
-                        .add(this.guiConf.opacity, "opacity", 0, 1, 0.01)
-                        .onChange((opacityValue) => {
-                            object.material.opacity = opacityValue;
-                        });
-
-                    this.gui
-                        .add(this.guiConf.glossy, "glass")
-                        .onChange((value) => {
-                            if (value) {
+                    // finish change
+                    this.finishInputs.forEach((input) => {
+                        input.addEventListener("change", () => {
+                            if (input.value === "clear") {
                                 this.glassOptions(object.material);
                             } else {
                                 this.matteOptions(object.material);
                             }
                         });
+                    });
                 }
             });
 
@@ -279,12 +346,11 @@ export default class GLTFModelControllerEnvironment {
     }
 
     glassOptions(material) {
-        material.refractionRatio = 50;
+        material.refractionRatio = 1;
         material.reflectivity = 1;
         material.roughness = 0;
         material.clearcoat = 1;
         material.clearcoatRoughness = 0;
-        material.metalness = 0;
     }
 
     matteOptions(material) {

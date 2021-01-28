@@ -36,7 +36,7 @@
 <div class="o-navigation js-navigation-wrapper">
     <div class="c-navigation">
         <div class="o-container">
-            <a href="index.html" class="c-logo" title="Bornfight">
+            <a href="index.html" class="c-logo is-blended" title="Bornfight">
                 <svg version="1.1" id="bornfight" xmlns="http://www.w3.org/2000/svg"
                      xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
                      viewBox="0 0 140 32.8" style="enable-background:new 0 0 140 32.8;" xml:space="preserve">
@@ -66,7 +66,7 @@
 </g>
 </svg>
             </a>
-            <a href="index.html" class="c-link c-link--back">
+            <a href="index.html" class="c-link c-link--back is-blended">
                 <span class="c-link__prepend">
                     <svg
                         class="u-icon u-icon--chevron-left"
@@ -103,16 +103,16 @@
                     <img src="" alt="" class="c-prototype-content__logo">
 
                     <div class="c-prototype-content">
-                        <p class="c-prototype-content__eyebrow">
+                        <p class="c-prototype-content__eyebrow is-blended">
                             750ml
                         </p>
 
-                        <h1 class="c-prototype-content__title">
+                        <h1 class="c-prototype-content__title is-blended">
                             Square grip jar
                         </h1>
 
                         <div class="c-prototype-content__description">
-                            <div class="c-prototype-content__description-top">
+                            <div class="c-prototype-content__description-top is-blended">
                                 <div class="c-prototype-content__dt-block">
                                     <div>
                                         <span>
@@ -159,7 +159,7 @@
                                 </div>
                             </div>
 
-                            <div class="c-prototype-content__description-middle">
+                            <div class="c-prototype-content__description-middle is-blended">
                                 <div class="c-prototype-content__dm-block">
                                     <span>
                                         Label area
@@ -221,7 +221,7 @@
                                 </div>
                             </div>
 
-                            <div class="c-prototype-content__description-bottom">
+                            <div class="c-prototype-content__description-bottom is-blended">
                                 <p>
                                     Related sizes
                                 </p>
@@ -251,40 +251,74 @@
 
                             <div class="c-prototype-content__filters">
                                 <div class="c-filter js-color">
-                                    <p class="c-filter__label">
+                                    <p class="c-filter__label is-blended">
                                         Color
                                     </p>
 
-                                    <div class="c-filter__input">
+                                    <div class="c-filter__input js-color-input">
 
                                     </div>
 
-                                    <p class="c-filter__value">
+                                    <p class="c-filter__value is-blended js-color-preview">
                                         #0005a0
                                     </p>
                                 </div>
 
+                                <div class="c-filter js-transparent">
+                                    <p class="c-filter__label is-blended">
+                                        Transparency
+                                    </p>
+
+                                    <div class="c-filter__input is-blended">
+                                        <label for="transparent">
+                                            <input type="radio" value="transparent" name="transparent" id="transparent">
+                                            <p>
+                                                Transparent
+                                            </p>
+                                        </label>
+
+                                        <label for="tinted">
+                                            <input type="radio" value="tinted" name="transparent" id="tinted">
+                                            <p>
+                                                Tinted
+                                            </p>
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div class="c-filter js-opacity">
-                                    <p class="c-filter__label">
+                                    <p class="c-filter__label is-blended">
                                         Opacity
                                     </p>
 
                                     <div class="c-filter__input">
-                                        <input type="range" min="0" max="100">
+                                        <input type="range" class="js-opacity-input" min="0" max="100">
                                     </div>
 
-                                    <p class="c-filter__value">
+                                    <p class="c-filter__value is-blended js-opacity-preview">
                                         30%
                                     </p>
                                 </div>
 
-                                <div class="c-filter js-finish">
+                                <div class="c-filter js-finish is-blended">
                                     <p class="c-filter__label">
                                         Finish
                                     </p>
 
                                     <div class="c-filter__input">
+                                        <label for="clear">
+                                            <input type="radio" value="clear" name="finish" id="clear">
+                                            <p>
+                                                Clear
+                                            </p>
+                                        </label>
 
+                                        <label for="matte">
+                                            <input type="radio" value="matte" name="finish" id="matte">
+                                            <p>
+                                                Matte
+                                            </p>
+                                        </label>
                                     </div>
                                 </div>
                             </div>
