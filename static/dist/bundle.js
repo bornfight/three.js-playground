@@ -373,10 +373,10 @@ var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
 
       if (this.modelContainer !== null) {
         console.log("GLTFModelController init()"); // gui
-
-        this.gui = new dat.GUI({
-          name: "Bottle config"
-        }); // gui config
+        // this.gui = new dat.GUI({
+        //     name: "Bottle config",
+        // });
+        // gui config
 
         this.guiConf = {
           light: {

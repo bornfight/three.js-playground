@@ -35,9 +35,9 @@ export default class GLTFModelControllerEnvironment {
             console.log("GLTFModelController init()");
 
             // gui
-            this.gui = new dat.GUI({
-                name: "Bottle config",
-            });
+            // this.gui = new dat.GUI({
+            //     name: "Bottle config",
+            // });
 
             // gui config
             this.guiConf = {
