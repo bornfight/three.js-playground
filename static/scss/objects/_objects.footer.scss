@@ -5,4 +5,9 @@
     bottom: 0;
     left: 0;
     z-index: getZindex("navigation");
+    pointer-events: none;
+
+    a {
+        pointer-events: auto;
+    }
 }

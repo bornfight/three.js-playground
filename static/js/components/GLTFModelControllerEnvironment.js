@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import * as dat from "dat.gui";
 import ColorPicker from "simple-color-picker";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
@@ -27,41 +26,41 @@ export default class GLTFModelControllerEnvironment {
             // finish
             finishWrapper: ".js-finish",
         };
+
+        // config
+        this.config = {
+            light: {
+                lightIntensity: 6,
+            },
+            color: {
+                color: "#0005a0",
+            },
+            autoRotation: {
+                autoRotate: true,
+            },
+            opacity: {
+                transparent: false,
+                opacity: 0.3,
+            },
+            finish: {
+                clear: true,
+            },
+            environment: {
+                showEnvironment: true,
+                color: "#0005a0",
+            },
+        };
     }
 
+    /**
+     * main init - all dom elements and method calls
+     */
     init() {
         this.modelContainer = document.querySelector(this.DOM.modelContainer);
         if (this.modelContainer !== null) {
             console.log("GLTFModelController init()");
 
-            // gui
-            // this.gui = new dat.GUI({
-            //     name: "Bottle config",
-            // });
-
-            // gui config
-            this.guiConf = {
-                light: {
-                    lightIntensity: 6,
-                },
-                color: {
-                    color: "#0005a0",
-                },
-                autoRotation: {
-                    autoRotate: true,
-                },
-                opacity: {
-                    transparent: false,
-                    opacity: 0.3,
-                },
-                finish: {
-                    clear: true,
-                },
-                environment: {
-                    showEnvironment: true,
-                    color: "#0005a0",
-                },
-            };
+            THREE.Cache.enabled = true;
 
             this.colorWrapper = document.querySelector(this.DOM.colorWrapper);
             this.colorInput = this.colorWrapper.querySelector(this.DOM.colorInput);
@@ -74,11 +73,12 @@ export default class GLTFModelControllerEnvironment {
             this.transparentWrapper = document.querySelector(this.DOM.transparentWrapper);
             this.transparentInputs = this.transparentWrapper.querySelectorAll("input");
 
+            // preset transparency radio btns
             this.transparentInputs.forEach((input) => {
-                if (this.guiConf.opacity.transparent && input.value === "transparent") {
+                if (this.config.opacity.transparent && input.value === "transparent") {
                     input.checked = true;
                     this.opacityWrapper.style.display = "";
-                } else if (!this.guiConf.opacity.transparent && input.value === "tinted") {
+                } else if (!this.config.opacity.transparent && input.value === "tinted") {
                     input.checked = true;
                     this.opacityWrapper.style.display = "none";
                 }
@@ -87,14 +87,15 @@ export default class GLTFModelControllerEnvironment {
             this.finishWrapper = document.querySelector(this.DOM.finishWrapper);
             this.finishInputs = this.finishWrapper.querySelectorAll("input");
 
+            // preset finish radio btns
             this.finishInputs.forEach((input) => {
                 if (
-                    this.guiConf.finish.clear &&
+                    this.config.finish.clear &&
                     input.value === "clear"
                 ) {
                     input.checked = true;
                 } else if (
-                    !this.guiConf.finish.clear &&
+                    !this.config.finish.clear &&
                     input.value === "matte"
                 ) {
                     input.checked = true;
@@ -103,20 +104,46 @@ export default class GLTFModelControllerEnvironment {
 
             this.colorPicker = new ColorPicker();
             this.colorPicker.appendTo(this.colorInput);
-            this.colorPicker.setColor(this.guiConf.color.color);
+
+            // preset colorpicker
+            this.colorPicker.setColor(this.config.color.color);
 
             this.width = this.modelContainer.offsetWidth;
             this.height = this.modelContainer.offsetHeight;
 
-            THREE.Cache.enabled = true;
+            // reflection map
+            const path = `/three.js-playground/static/images/maps/`;
+            const mapUrls = [
+                path + "posx.jpg",
+                path + "negx.jpg",
+                path + "posy.jpg",
+                path + "negy.jpg",
+                path + "posz.jpg",
+                path + "negz.jpg",
+            ];
 
-            this.initFBXModel();
+            this.cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
+            this.cubeMap.format = THREE.RGBFormat;
+            this.cubeMap.encoding = THREE.sRGBEncoding;
+
+            this.initCamera();
+            this.initScene();
+            this.initLights();
+            this.initEnvironment();
+            this.initRenderer();
+            this.initModel();
+            this.initControls();
             this.animate();
+
+            // handle resize
+            window.addEventListener("resize", () => this.onWindowResize(), false);
         }
     }
 
-    initFBXModel() {
-        // camera
+    /**
+     * camera setup
+     */
+    initCamera() {
         this.camera = new THREE.PerspectiveCamera(
             35,
             this.width / this.height,
@@ -124,27 +151,36 @@ export default class GLTFModelControllerEnvironment {
             600,
         );
         this.camera.position.set(10, 10, 40);
+    }
 
-        // scene
+    /**
+     * scene setup
+     */
+    initScene() {
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xffffff);
+    }
 
-        // lights
+    /**
+     * lights setup - because of performance > all in one object
+     */
+    initLights() {
+        const lightWrapper = new THREE.Object3D();
         const hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
         hemiLight.position.set(0, 200, 0);
-        this.scene.add(hemiLight);
+        lightWrapper.add(hemiLight);
 
         this.ambientLight = new THREE.AmbientLight(0x404040);
         this.ambientLight.matrixAutoUpdate = false;
-        this.scene.add(this.ambientLight);
+        lightWrapper.add(this.ambientLight);
 
         // this is just back light - without it back side of model would be barely visible
         this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 3);
         this.dirSubLight.position.set(-20, 20, -20);
         this.dirSubLight.matrixAutoUpdate = false;
-        this.scene.add(this.dirSubLight);
+        lightWrapper.add(this.dirSubLight);
 
-        this.dirLight = new THREE.DirectionalLight(0xdddddd, this.guiConf.light.lightIntensity);
+        this.dirLight = new THREE.DirectionalLight(0xdddddd, this.config.light.lightIntensity);
         this.dirLight.position.set(20, 30, 10);
         this.dirLight.castShadow = true;
         this.dirLight.shadow.camera.top = 180;
@@ -156,16 +192,14 @@ export default class GLTFModelControllerEnvironment {
         this.dirLight.matrixAutoUpdate = false;
         this.dirLight.shadow.radius = 4;
         this.dirLight.shadow.bias = 0.0001;
-        this.scene.add(this.dirLight);
+        lightWrapper.add(this.dirLight);
+        this.scene.add(lightWrapper);
+    }
 
-        // add gui for light intensity
-        // this.gui
-        //     .add(this.guiConf.light, "lightIntensity", 1, 10, 0.1)
-        //     .onChange((value) => {
-        //         this.dirLight.intensity = value;
-        //     });
-
-        // ground
+    /**
+     * environment setup - box geometry
+     */
+    initEnvironment() {
         this.environment = new THREE.Mesh(
             new THREE.BoxBufferGeometry(100, 100, 100),
             new THREE.MeshStandardMaterial({
@@ -178,27 +212,18 @@ export default class GLTFModelControllerEnvironment {
 
         this.environment.position.y = 50;
         this.environment.receiveShadow = true;
-        this.environment.material.color.set(this.guiConf.environment.color);
+        this.environment.material.color.set(this.config.environment.color);
         this.scene.add(this.environment);
 
-        // add gui for plane
-        if (!this.guiConf.environment.showEnvironment) {
+        if (!this.config.environment.showEnvironment) {
             this.environment.visible = false;
         }
+    }
 
-        // this.gui
-        //     .add(this.guiConf.environment, "showEnvironment")
-        //     .onChange((value) => {
-        //         this.environment.visible = !!value;
-        //     });
-
-        // this.gui
-        //     .addColor(this.guiConf.environment, "color")
-        //     .onChange((value) => {
-        //         this.environment.material.color.set(value);
-        //     });
-
-        // renderer
+    /**
+     * renderer setup
+     */
+    initRenderer() {
         this.renderer = new THREE.WebGLRenderer({
             antialias: true,
             depth: false,
@@ -212,36 +237,32 @@ export default class GLTFModelControllerEnvironment {
         this.renderer.physicallyCorrectLights = true;
         this.renderer.shadowMap.type = THREE.PCFShadowMap;
         this.modelContainer.appendChild(this.renderer.domElement);
+    }
 
-        // loader
-        this.loadModel();
-
-        // orbit controls
+    /**
+     * orbit controls setup
+     */
+    initControls() {
         this.controls = new OrbitControls(
             this.camera,
             this.renderer.domElement,
         );
         this.controls.target.set(0, 10, 0);
-        this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
+        this.controls.autoRotate = this.config.autoRotation.autoRotate;
         this.controls.autoRotateSpeed = 1;
         this.controls.enableZoom = false;
         this.controls.enablePan = false;
+        this.controls.enableDamping = true;
+        this.controls.dampingFactor = 0.1;
 
         this.controls.maxPolarAngle = Math.PI / 1.8;
         this.controls.minPolarAngle = Math.PI / 3.5;
-
-        // this.gui
-        //     .add(this.guiConf.autoRotation, "autoRotate")
-        //     .onChange((value) => {
-        //         console.log(value);
-        //         this.controls.autoRotate = value !== false;
-        //     });
-
-        // handle resize
-        window.addEventListener("resize", () => this.onWindowResize(), false);
     }
 
-    loadModel() {
+    /**
+     * model setup and load call
+     */
+    initModel() {
         // get model
         let model = this.modelContainer.getAttribute("data-model-source");
 
@@ -249,90 +270,7 @@ export default class GLTFModelControllerEnvironment {
         const loader = new GLTFLoader();
         loader.load(model, (model) => {
             model.scene.traverse((object) => {
-                if (object.isMesh) {
-                    object.position.y = 0.1;
-                    object.castShadow = true;
-                    object.material.side = 2;
-                    object.material.shadowSide = 1;
-                    object.material.metalness = 0;
-                    object.material.opacity = this.guiConf.opacity.opacity;
-                    object.material.depthFunc = false;
-                    object.material.depthWrite = !this.guiConf.opacity.transparent;
-                    object.material.transparent = this.guiConf.opacity.transparent;
-                    object.material.color.set(this.colorPicker.getHexNumber());
-                    object.material.color.convertSRGBToLinear();
-
-                    if (!this.guiConf.opacity.transparent) {
-                        object.material.side = null;
-                        object.material.shadowSide = null;
-                    }
-
-                    object.matrixAutoUpdate = false;
-
-                    // reflection map
-                    const path = `/three.js-playground/static/images/maps/`;
-                    const mapUrls = [
-                        path + "posx.jpg",
-                        path + "negx.jpg",
-                        path + "posy.jpg",
-                        path + "negy.jpg",
-                        path + "posz.jpg",
-                        path + "negz.jpg",
-                    ];
-
-                    const cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
-                    cubeMap.format = THREE.RGBFormat;
-                    cubeMap.encoding = THREE.sRGBEncoding;
-                    object.material.needsUpdate = false;
-
-                    if (this.guiConf.opacity.transparent) {
-                        object.material.envMap = cubeMap;
-                    }
-
-                    // if initial glass state is true
-                    if (this.guiConf.finish.clear) {
-                        this.glassOptions(object.material);
-                    }
-
-                    // color change
-                    this.colorPicker.onChange(() => {
-                        object.material.color.set(this.colorPicker.getHexNumber());
-                        this.colorPreview.innerHTML = this.colorPicker.getHexString();
-                    });
-
-                    // opacity change
-                    this.opacityInput.value = this.guiConf.opacity.opacity * 100;
-                    this.opacityInput.addEventListener("input", () => {
-                        object.material.opacity = this.opacityInput.value / 100;
-                        this.opacityPreview.innerHTML = `${this.opacityInput.value}%`;
-                    });
-
-                    // transparency change
-                    this.transparentInputs.forEach((input) => {
-                        input.addEventListener("change", () => {
-                            object.material.transparent = input.value === "transparent";
-                            object.material.depthWrite = input.value !== "transparent";
-                            this.opacityWrapper.style.display = input.value === "transparent" ? "" : "none";
-
-                            object.material.envMap = input.value !== "transparent" ? null : cubeMap;
-                            object.material.side = input.value !== "transparent" ? null : 2;
-                            object.material.shadowSide = input.value !== "transparent" ? null : 1;
-
-                            object.material.needsUpdate = true;
-                        });
-                    });
-
-                    // finish change
-                    this.finishInputs.forEach((input) => {
-                        input.addEventListener("change", () => {
-                            if (input.value === "clear") {
-                                this.glassOptions(object.material);
-                            } else {
-                                this.matteOptions(object.material);
-                            }
-                        });
-                    });
-                }
+                this.loadModel(object);
             });
 
             this.scene.add(model.scene);
@@ -342,7 +280,95 @@ export default class GLTFModelControllerEnvironment {
         });
     }
 
-    glassOptions(material) {
+    /**
+     * moadel loading and controller call
+     * @param [object] object
+     */
+    loadModel(object) {
+        if (object.isMesh) {
+            object.position.y = 0.1;
+            object.castShadow = true;
+            object.material.side = 2;
+            object.material.shadowSide = 1;
+            object.material.metalness = 0;
+            object.material.opacity = this.config.opacity.opacity;
+            object.material.depthFunc = false;
+            object.material.depthWrite = !this.config.opacity.transparent;
+            object.material.transparent = this.config.opacity.transparent;
+            object.material.color.set(this.colorPicker.getHexNumber());
+            object.material.color.convertSRGBToLinear();
+
+            if (!this.config.opacity.transparent) {
+                object.material.side = null;
+                object.material.shadowSide = null;
+            }
+
+            object.matrixAutoUpdate = false;
+            object.material.needsUpdate = false;
+
+            if (this.config.opacity.transparent) {
+                object.material.envMap = this.cubeMap;
+            }
+
+            // if initial glass state is true
+            if (this.config.finish.clear) {
+                this.clearOptions(object.material);
+            }
+
+            this.filtersController(object);
+        }
+    }
+
+    /**
+     * filters controller
+     * @param [object] object
+     */
+    filtersController(object) {
+        // color change
+        this.colorPicker.onChange(() => {
+            object.material.color.set(this.colorPicker.getHexNumber());
+            this.colorPreview.innerHTML = this.colorPicker.getHexString();
+        });
+
+        // opacity change
+        this.opacityInput.value = this.config.opacity.opacity * 100;
+        this.opacityInput.addEventListener("input", () => {
+            object.material.opacity = this.opacityInput.value / 100;
+            this.opacityPreview.innerHTML = `${this.opacityInput.value}%`;
+        });
+
+        // transparency change
+        this.transparentInputs.forEach((input) => {
+            input.addEventListener("change", () => {
+                object.material.transparent = input.value === "transparent";
+                object.material.depthWrite = input.value !== "transparent";
+                this.opacityWrapper.style.display = input.value === "transparent" ? "" : "none";
+
+                object.material.envMap = input.value !== "transparent" ? null : this.cubeMap;
+                object.material.side = input.value !== "transparent" ? null : 2;
+                object.material.shadowSide = input.value !== "transparent" ? null : 1;
+
+                object.material.needsUpdate = true;
+            });
+        });
+
+        // finish change
+        this.finishInputs.forEach((input) => {
+            input.addEventListener("change", () => {
+                if (input.value === "clear") {
+                    this.clearOptions(object.material);
+                } else {
+                    this.matteOptions(object.material);
+                }
+            });
+        });
+    }
+
+    /**
+     * finish clear method
+     * @param material
+     */
+    clearOptions(material) {
         material.refractionRatio = 1;
         material.reflectivity = 1;
         material.roughness = 0;
@@ -350,6 +376,10 @@ export default class GLTFModelControllerEnvironment {
         material.clearcoatRoughness = 0;
     }
 
+    /**
+     * finish matte method
+     * @param material
+     */
     matteOptions(material) {
         material.refractionRatio = 0;
         material.reflectivity = 0;
@@ -358,6 +388,9 @@ export default class GLTFModelControllerEnvironment {
         material.clearcoatRoughness = 0.5;
     }
 
+    /**
+     *
+     */
     onWindowResize() {
         this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
@@ -365,6 +398,9 @@ export default class GLTFModelControllerEnvironment {
         this.renderer.setSize(this.width, this.height);
     }
 
+    /**
+     * requestAnimationFrame
+     */
     animate() {
         requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
