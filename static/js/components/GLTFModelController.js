@@ -169,11 +169,7 @@ export default class GLTFModelController {
             .add(this.guiConf.autoRotation, "autoRotate")
             .onChange((value) => {
                 console.log(value);
-                if (value === false) {
-                    this.controls.autoRotate = false;
-                } else {
-                    this.controls.autoRotate = true;
-                }
+                this.controls.autoRotate = value !== false;
             });
 
         // handle resize

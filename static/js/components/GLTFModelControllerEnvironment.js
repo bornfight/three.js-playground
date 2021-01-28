@@ -46,7 +46,7 @@ export default class GLTFModelControllerEnvironment {
                     emissiveColor: "#1e0f0f",
                 },
                 environment: {
-                    showEnvironment: true,
+                    showEnvironment: false,
                     color: "#0005a0",
                 },
             };
@@ -64,7 +64,7 @@ export default class GLTFModelControllerEnvironment {
             0.5,
             600,
         );
-        this.camera.position.set(35, 10, 32);
+        this.camera.position.set(10, 10, 40);
 
         // scene
         this.scene = new THREE.Scene();
@@ -82,13 +82,13 @@ export default class GLTFModelControllerEnvironment {
         this.scene.add(this.ambientLight);
 
         // this is just back light - without it back side of model would be barely visible
-        this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 1);
-        this.dirSubLight.position.set(-40, 20, -20);
+        this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 3);
+        this.dirSubLight.position.set(-20, 20, -20);
         this.dirSubLight.matrixAutoUpdate = false;
         this.scene.add(this.dirSubLight);
 
-        this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
-        this.dirLight.position.set(40, 20, 20);
+        this.dirLight = new THREE.DirectionalLight(0xdddddd, this.guiConf.light.lightIntensity);
+        this.dirLight.position.set(20, 30, 10);
         this.dirLight.castShadow = true;
         this.dirLight.shadow.camera.top = 180;
         this.dirLight.shadow.camera.bottom = -100;
@@ -111,8 +111,10 @@ export default class GLTFModelControllerEnvironment {
         // ground
         this.environment = new THREE.Mesh(
             new THREE.BoxBufferGeometry(100, 100, 100),
-            new THREE.MeshPhongMaterial({
+            new THREE.MeshStandardMaterial({
                 depthWrite: false,
+                refractionRatio: 0,
+                roughness: 1,
                 side: THREE.DoubleSide,
             }),
         );
@@ -194,8 +196,6 @@ export default class GLTFModelControllerEnvironment {
                 color: this.guiConf.color.color,
                 depthFunc: false,
             });
-
-            material.color.convertSRGBToLinear();
 
             model.scene.traverse((object) => {
                 if (object.isMesh) {
@@ -288,15 +288,18 @@ export default class GLTFModelControllerEnvironment {
 
             this.scene.add(model.scene);
             this.dirLight.updateMatrix();
+            this.dirSubLight.updateMatrix();
+            this.ambientLight.updateMatrix();
         });
     }
 
     glassOptions(material) {
-        material.refractionRatio = 1;
+        material.refractionRatio = 50;
         material.reflectivity = 1;
         material.roughness = 0;
         material.clearcoat = 1;
         material.clearcoatRoughness = 0;
+        material.metalness = 0;
     }
 
     matteOptions(material) {
