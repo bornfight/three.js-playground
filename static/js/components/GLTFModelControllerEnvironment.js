@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import ColorPicker from "simple-color-picker";
+import gsap from "gsap";
 
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
@@ -316,7 +317,35 @@ export default class GLTFModelControllerEnvironment {
             }
 
             this.filtersController(object);
+
+            this.revealAnimation(object);
         }
+    }
+
+    revealAnimation(object) {
+        console.log(object);
+        object.scale.set(0.001, 0.001, 0.001);
+        object.rotation.y = -4.5;
+        object.updateMatrix();
+
+        setTimeout(() => {
+            gsap.to(object.rotation, {
+                duration: 1,
+                ease: "power3.out",
+                y: 0,
+            });
+
+            gsap.to(object.scale, {
+                duration: 1,
+                ease: "elastic.out(1, 0.5)",
+                x: 1,
+                y: 1,
+                z: 1,
+                onUpdate: () => {
+                    object.updateMatrix();
+                },
+            });
+        }, 300);
     }
 
     /**
