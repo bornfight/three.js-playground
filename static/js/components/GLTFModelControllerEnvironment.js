@@ -345,7 +345,7 @@ export default class GLTFModelControllerEnvironment {
                     object.updateMatrix();
                 },
             });
-        }, 300);
+        }, 600);
     }
 
     /**
