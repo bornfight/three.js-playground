@@ -112,6 +112,8 @@ export default class GLTFModelControllerEnvironment {
             this.width = this.modelContainer.offsetWidth;
             this.height = this.modelContainer.offsetHeight;
 
+            this.isPlaying = false;
+
             // reflection map
             const path = `/three.js-playground/static/images/maps/`;
             const mapUrls = [
@@ -132,9 +134,13 @@ export default class GLTFModelControllerEnvironment {
             this.initLights();
             this.initEnvironment();
             this.initRenderer();
-            this.initModel();
             this.initControls();
-            this.animate();
+            this.initModel();
+
+            // this will remove model and stop animation and after 3s will create new model
+            // setTimeout(() => {
+            //     this.clearModel();
+            // }, 5000);
 
             // handle resize
             window.addEventListener("resize", () => this.onWindowResize(), false);
@@ -264,15 +270,22 @@ export default class GLTFModelControllerEnvironment {
      * model setup and load call
      */
     initModel() {
+        this.isPlaying = true;
+        this.animate();
+
         // get model
         let model = this.modelContainer.getAttribute("data-model-source");
 
         // loader
         const loader = new GLTFLoader();
+        this.model = null;
         loader.load(model, (model) => {
             model.scene.traverse((object) => {
                 this.loadModel(object);
             });
+            this.model = model.scene;
+
+            model.scene.name = "3d-model";
 
             this.scene.add(model.scene);
             this.dirLight.updateMatrix();
@@ -323,7 +336,6 @@ export default class GLTFModelControllerEnvironment {
     }
 
     revealAnimation(object) {
-        console.log(object);
         object.scale.set(0.001, 0.001, 0.001);
         object.rotation.y = -4.5;
         object.updateMatrix();
@@ -431,8 +443,22 @@ export default class GLTFModelControllerEnvironment {
      * requestAnimationFrame
      */
     animate() {
-        requestAnimationFrame(() => this.animate());
         this.renderer.render(this.scene, this.camera);
         this.controls.update();
+        if (this.renderer != null && this.isPlaying) {
+            requestAnimationFrame(() => this.animate());
+        }
+    }
+
+    /**
+     *
+     */
+    clearModel() {
+        this.isPlaying = false;
+        this.scene.remove(this.model);
+
+        setTimeout(() => {
+            this.initModel();
+        }, 3000);
     }
 }

@@ -1,1 +1,1376 @@
-!function n(o,r,a){function s(t,e){if(!r[t]){if(!o[t]){var i="function"==typeof require&&require;if(!e&&i)return i(t,!0);if(l)return l(t,!0);throw(i=new Error("Cannot find module '"+t+"'")).code="MODULE_NOT_FOUND",i}i=r[t]={exports:{}},o[t][0].call(i.exports,function(e){return s(o[t][1][e]||e)},i,i.exports,n,o,r,a)}return r[t].exports}for(var l="function"==typeof require&&require,e=0;e<a.length;e++)s(a[e]);return s}({1:[function(e,t,i){"use strict";function a(e){return(a="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}Object.defineProperty(i,"__esModule",{value:!0}),i.default=void 0;var r=n(e("three")),o=n(e("dat.gui")),s=e("three/examples/jsm/controls/OrbitControls"),l=e("three/examples/jsm/loaders/GLTFLoader");function c(){if("function"!=typeof WeakMap)return null;var e=new WeakMap;return c=function(){return e},e}function n(e){if(e&&e.__esModule)return e;if(null===e||"object"!==a(e)&&"function"!=typeof e)return{default:e};var t=c();if(t&&t.has(e))return t.get(e);var i,n,o={},r=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(i in e)Object.prototype.hasOwnProperty.call(e,i)&&((n=r?Object.getOwnPropertyDescriptor(e,i):null)&&(n.get||n.set)?Object.defineProperty(o,i,n):o[i]=e[i]);return o.default=e,t&&t.set(e,o),o}function h(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}e=function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.DOM={modelContainer:".js-model-container"}}var t,i,n;return t=e,(i=[{key:"init",value:function(){this.modelContainer=document.querySelector(this.DOM.modelContainer),null!==this.modelContainer&&(this.width=this.modelContainer.offsetWidth,this.height=this.modelContainer.offsetHeight,r.Cache.enabled=!0,this.gui=new o.GUI({name:"Bottle config"}),this.guiConf={light:{lightIntensity:6},color:{color:"#0005a0"},autoRotation:{autoRotate:!0},opacity:{transparent:!0,opacity:.3},glossy:{glass:!0,emissiveColor:"#1e0f0f"},grid:{showGrid:!1}},this.initFBXModel(),this.animate())}},{key:"initFBXModel",value:function(){var t=this;this.camera=new r.PerspectiveCamera(35,this.width/this.height,.5,400),this.camera.position.set(35,10,32),this.scene=new r.Scene,this.scene.background=new r.Color(16777215);var e=new r.HemisphereLight(16777215,10066329);e.position.set(0,200,0),this.scene.add(e),this.ambientLight=new r.AmbientLight(4210752),this.ambientLight.matrixAutoUpdate=!1,this.scene.add(this.ambientLight),this.dirSubLight=new r.DirectionalLight(13421772,1),this.dirSubLight.position.set(-20,20,-20),this.dirSubLight.matrixAutoUpdate=!1,this.scene.add(this.dirSubLight),this.dirLight=new r.DirectionalLight(13421772,this.guiConf.light.lightIntensity),this.dirLight.position.set(20,30,20),this.dirLight.castShadow=!0,this.dirLight.shadow.camera.top=180,this.dirLight.shadow.camera.bottom=-100,this.dirLight.shadow.camera.left=-120,this.dirLight.shadow.camera.right=120,this.dirLight.shadow.mapSize.width=4096,this.dirLight.shadow.mapSize.height=4096,this.dirLight.matrixAutoUpdate=!1,this.dirLight.shadow.radius=4,this.dirLight.shadow.bias=1e-4,this.scene.add(this.dirLight),this.gui.add(this.guiConf.light,"lightIntensity",1,10,.1).onChange(function(e){t.dirLight.intensity=e});var i=new r.GridHelper(2e3,40,0,0);i.material.opacity=.1,i.material.transparent=!0,this.scene.add(i),this.guiConf.grid.showGrid||(i.visible=!1),this.gui.add(this.guiConf.grid,"showGrid").onChange(function(e){i.visible=!!e}),this.renderer=new r.WebGLRenderer({antialias:!0,depth:!1,powerPreference:"high-performance"}),this.renderer.setPixelRatio(window.devicePixelRatio),this.renderer.setSize(this.width,this.height),this.renderer.shadowMap.enabled=!0,this.renderer.gammaFactor=2.2,this.renderer.outputEncoding=r.sRGBEncoding,this.renderer.physicallyCorrectLights=!0,this.renderer.shadowMap.type=r.PCFShadowMap,this.modelContainer.appendChild(this.renderer.domElement),this.loadModel(),this.controls=new s.OrbitControls(this.camera,this.renderer.domElement),this.controls.target.set(0,10,0),this.controls.autoRotate=this.guiConf.autoRotation.autoRotate,this.controls.autoRotateSpeed=1,this.controls.enableZoom=!1,this.controls.enablePan=!1,this.gui.add(this.guiConf.autoRotation,"autoRotate").onChange(function(e){t.controls.autoRotate=!1!==e}),window.addEventListener("resize",function(){return t.onWindowResize()},!1)}},{key:"loadModel",value:function(){var o=this,e=this.modelContainer.getAttribute("data-model-source");(new l.GLTFLoader).load(e,function(e){var n=new r.MeshPhysicalMaterial({color:o.guiConf.color.color,depthFunc:!1});n.color.convertSRGBToLinear(),e.scene.traverse(function(t){var e,i;t.isMesh&&(t.position.y=.1,t.castShadow=!0,t.material.side=2,t.material.shadowSide=1,t.material.metalness=0,t.material.opacity=o.guiConf.opacity.opacity,t.material.emissive.set(o.guiConf.glossy.emissiveColor),t.material.depthFunc=!1,t.material.color.convertSRGBToLinear(),t.matrixAutoUpdate=!1,e=[(e="/three.js-playground/static/images/maps/")+"posx.jpg",e+"negx.jpg",e+"posy.jpg",e+"negy.jpg",e+"posz.jpg",e+"negz.jpg"],(e=(new r.CubeTextureLoader).load(e)).format=r.RGBFormat,e.encoding=r.sRGBEncoding,t.material.envMap=e,t.material.needsUpdate=!1,i=t.material,!1===o.guiConf.opacity.transparent?t.material=n:t.material=i,o.guiConf.glossy.glass&&o.glassOptions(t.material),o.gui.addColor(o.guiConf.color,"color").onChange(function(e){t.material.color.set(e)}),o.gui.add(o.guiConf.opacity,"transparent").onChange(function(e){t.material=!1===e?n:i,o.guiConf.glossy.glass&&o.glassOptions(t.material)}),o.gui.add(o.guiConf.opacity,"opacity",.25,.75,.01).onChange(function(e){t.material.opacity=e}),o.gui.addColor(o.guiConf.glossy,"emissiveColor").onChange(function(e){t.material.emissive.set(e)}),o.gui.add(o.guiConf.glossy,"glass").onChange(function(e){e?o.glassOptions(t.material):o.matteOptions(t.material)}))}),o.scene.add(e.scene),o.dirLight.updateMatrix(),o.dirSubLight.updateMatrix(),o.ambientLight.updateMatrix()})}},{key:"glassOptions",value:function(e){e.refractionRatio=1,e.reflectivity=1,e.roughness=0,e.clearcoat=1,e.clearcoatRoughness=0}},{key:"matteOptions",value:function(e){e.refractionRatio=0,e.reflectivity=0,e.roughness=.5,e.clearcoat=0,e.clearcoatRoughness=.5}},{key:"onWindowResize",value:function(){this.camera.aspect=this.width/this.height,this.renderer.setSize(this.width,this.height)}},{key:"animate",value:function(){var e=this;requestAnimationFrame(function(){return e.animate()}),this.renderer.render(this.scene,this.camera),this.controls.update()}}])&&h(t.prototype,i),n&&h(t,n),e}();i.default=e},{"dat.gui":"dat.gui",three:"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],2:[function(e,t,i){"use strict";function a(e){return(a="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}Object.defineProperty(i,"__esModule",{value:!0}),i.default=void 0;var o=function(e){if(e&&e.__esModule)return e;if(null===e||"object"!==a(e)&&"function"!=typeof e)return{default:e};var t=h();if(t&&t.has(e))return t.get(e);var i,n={},o=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(i in e){var r;Object.prototype.hasOwnProperty.call(e,i)&&((r=o?Object.getOwnPropertyDescriptor(e,i):null)&&(r.get||r.set)?Object.defineProperty(n,i,r):n[i]=e[i])}n.default=e,t&&t.set(e,n);return n}(e("three")),r=n(e("simple-color-picker")),s=n(e("gsap")),l=e("three/examples/jsm/controls/OrbitControls"),c=e("three/examples/jsm/loaders/GLTFLoader");function n(e){return e&&e.__esModule?e:{default:e}}function h(){if("function"!=typeof WeakMap)return null;var e=new WeakMap;return h=function(){return e},e}function u(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}e=function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.DOM={modelContainer:".js-model-container-environment",colorWrapper:".js-color",colorInput:".js-color-input",colorPreview:".js-color-preview",opacityWrapper:".js-opacity",opacityInput:".js-opacity-input",opacityPreview:".js-opacity-preview",transparentWrapper:".js-transparent",finishWrapper:".js-finish"},this.config={light:{lightIntensity:6},color:{color:"#0005a0"},autoRotation:{autoRotate:!0},opacity:{transparent:!1,opacity:.3},finish:{clear:!0},environment:{showEnvironment:!0,color:"#0005a0"}}}var t,i,n;return t=e,(i=[{key:"init",value:function(){var e,t=this;this.modelContainer=document.querySelector(this.DOM.modelContainer),null!==this.modelContainer&&(o.Cache.enabled=!0,this.colorWrapper=document.querySelector(this.DOM.colorWrapper),this.colorInput=this.colorWrapper.querySelector(this.DOM.colorInput),this.colorPreview=this.colorWrapper.querySelector(this.DOM.colorPreview),this.opacityWrapper=document.querySelector(this.DOM.opacityWrapper),this.opacityInput=this.opacityWrapper.querySelector(this.DOM.opacityInput),this.opacityPreview=this.opacityWrapper.querySelector(this.DOM.opacityPreview),this.transparentWrapper=document.querySelector(this.DOM.transparentWrapper),this.transparentInputs=this.transparentWrapper.querySelectorAll("input"),this.transparentInputs.forEach(function(e){t.config.opacity.transparent&&"transparent"===e.value?(e.checked=!0,t.opacityWrapper.style.display=""):t.config.opacity.transparent||"tinted"!==e.value||(e.checked=!0,t.opacityWrapper.style.display="none")}),this.finishWrapper=document.querySelector(this.DOM.finishWrapper),this.finishInputs=this.finishWrapper.querySelectorAll("input"),this.finishInputs.forEach(function(e){(!t.config.finish.clear||"clear"!==e.value)&&(t.config.finish.clear||"matte"!==e.value)||(e.checked=!0)}),this.colorPicker=new r.default,this.colorPicker.appendTo(this.colorInput),this.colorPicker.setColor(this.config.color.color),this.width=this.modelContainer.offsetWidth,this.height=this.modelContainer.offsetHeight,e=[(e="/three.js-playground/static/images/maps/")+"posx.jpg",e+"negx.jpg",e+"posy.jpg",e+"negy.jpg",e+"posz.jpg",e+"negz.jpg"],this.cubeMap=(new o.CubeTextureLoader).load(e),this.cubeMap.format=o.RGBFormat,this.cubeMap.encoding=o.sRGBEncoding,this.initCamera(),this.initScene(),this.initLights(),this.initEnvironment(),this.initRenderer(),this.initModel(),this.initControls(),this.animate(),window.addEventListener("resize",function(){return t.onWindowResize()},!1))}},{key:"initCamera",value:function(){this.camera=new o.PerspectiveCamera(35,this.width/this.height,.5,600),this.camera.position.set(10,10,40)}},{key:"initScene",value:function(){this.scene=new o.Scene,this.scene.background=new o.Color(16777215)}},{key:"initLights",value:function(){var e=new o.Object3D,t=new o.HemisphereLight(16777215,10066329);t.position.set(0,200,0),e.add(t),this.ambientLight=new o.AmbientLight(4210752),this.ambientLight.matrixAutoUpdate=!1,e.add(this.ambientLight),this.dirSubLight=new o.DirectionalLight(13421772,3),this.dirSubLight.position.set(-20,20,-20),this.dirSubLight.matrixAutoUpdate=!1,e.add(this.dirSubLight),this.dirLight=new o.DirectionalLight(14540253,this.config.light.lightIntensity),this.dirLight.position.set(20,30,10),this.dirLight.castShadow=!0,this.dirLight.shadow.camera.top=180,this.dirLight.shadow.camera.bottom=-100,this.dirLight.shadow.camera.left=-120,this.dirLight.shadow.camera.right=120,this.dirLight.shadow.mapSize.width=4096,this.dirLight.shadow.mapSize.height=4096,this.dirLight.matrixAutoUpdate=!1,this.dirLight.shadow.radius=4,this.dirLight.shadow.bias=1e-4,e.add(this.dirLight),this.scene.add(e)}},{key:"initEnvironment",value:function(){this.environment=new o.Mesh(new o.BoxBufferGeometry(100,100,100),new o.MeshStandardMaterial({depthWrite:!1,refractionRatio:0,roughness:1,side:o.DoubleSide})),this.environment.position.y=50,this.environment.receiveShadow=!0,this.environment.material.color.set(this.config.environment.color),this.scene.add(this.environment),this.config.environment.showEnvironment||(this.environment.visible=!1)}},{key:"initRenderer",value:function(){this.renderer=new o.WebGLRenderer({antialias:!0,depth:!1,powerPreference:"high-performance"}),this.renderer.setPixelRatio(window.devicePixelRatio),this.renderer.setSize(this.width,this.height),this.renderer.shadowMap.enabled=!0,this.renderer.gammaFactor=2.2,this.renderer.outputEncoding=o.sRGBEncoding,this.renderer.physicallyCorrectLights=!0,this.renderer.shadowMap.type=o.PCFShadowMap,this.modelContainer.appendChild(this.renderer.domElement)}},{key:"initControls",value:function(){this.controls=new l.OrbitControls(this.camera,this.renderer.domElement),this.controls.target.set(0,10,0),this.controls.autoRotate=this.config.autoRotation.autoRotate,this.controls.autoRotateSpeed=1,this.controls.enableZoom=!1,this.controls.enablePan=!1,this.controls.enableDamping=!0,this.controls.dampingFactor=.1,this.controls.maxPolarAngle=Math.PI/1.8,this.controls.minPolarAngle=Math.PI/3.5}},{key:"initModel",value:function(){var t=this,e=this.modelContainer.getAttribute("data-model-source");(new c.GLTFLoader).load(e,function(e){e.scene.traverse(function(e){t.loadModel(e)}),t.scene.add(e.scene),t.dirLight.updateMatrix(),t.dirSubLight.updateMatrix(),t.ambientLight.updateMatrix()})}},{key:"loadModel",value:function(e){e.isMesh&&(e.position.y=.1,e.castShadow=!0,e.material.side=2,e.material.shadowSide=1,e.material.metalness=0,e.material.opacity=this.config.opacity.opacity,e.material.depthFunc=!1,e.material.depthWrite=!this.config.opacity.transparent,e.material.transparent=this.config.opacity.transparent,e.material.color.set(this.colorPicker.getHexNumber()),e.material.color.convertSRGBToLinear(),this.config.opacity.transparent||(e.material.side=null,e.material.shadowSide=null),e.matrixAutoUpdate=!1,e.material.needsUpdate=!1,this.config.opacity.transparent&&(e.material.envMap=this.cubeMap),this.config.finish.clear&&this.clearOptions(e.material),this.filtersController(e),this.revealAnimation(e))}},{key:"revealAnimation",value:function(e){e.scale.set(.001,.001,.001),e.rotation.y=-4.5,e.updateMatrix(),setTimeout(function(){s.default.to(e.rotation,{duration:1,ease:"power3.out",y:0}),s.default.to(e.scale,{duration:1,ease:"elastic.out(1, 0.5)",x:1,y:1,z:1,onUpdate:function(){e.updateMatrix()}})},600)}},{key:"filtersController",value:function(t){var i=this;this.colorPicker.onChange(function(){t.material.color.set(i.colorPicker.getHexNumber()),i.colorPreview.innerHTML=i.colorPicker.getHexString()}),this.opacityInput.value=100*this.config.opacity.opacity,this.opacityInput.addEventListener("input",function(){t.material.opacity=i.opacityInput.value/100,i.opacityPreview.innerHTML="".concat(i.opacityInput.value,"%")}),this.transparentInputs.forEach(function(e){e.addEventListener("change",function(){t.material.transparent="transparent"===e.value,t.material.depthWrite="transparent"!==e.value,i.opacityWrapper.style.display="transparent"===e.value?"":"none",t.material.envMap="transparent"!==e.value?null:i.cubeMap,t.material.side="transparent"!==e.value?null:2,t.material.shadowSide="transparent"!==e.value?null:1,t.material.needsUpdate=!0})}),this.finishInputs.forEach(function(e){e.addEventListener("change",function(){"clear"===e.value?i.clearOptions(t.material):i.matteOptions(t.material)})})}},{key:"clearOptions",value:function(e){e.refractionRatio=1,e.reflectivity=1,e.roughness=0,e.clearcoat=1,e.clearcoatRoughness=0}},{key:"matteOptions",value:function(e){e.refractionRatio=0,e.reflectivity=0,e.roughness=.5,e.clearcoat=0,e.clearcoatRoughness=.5}},{key:"onWindowResize",value:function(){this.camera.aspect=this.width/this.height,this.camera.updateProjectionMatrix(),this.renderer.setSize(this.width,this.height)}},{key:"animate",value:function(){var e=this;requestAnimationFrame(function(){return e.animate()}),this.renderer.render(this.scene,this.camera),this.controls.update()}}])&&u(t.prototype,i),n&&u(t,n),e}();i.default=e},{gsap:"gsap","simple-color-picker":"simple-color-picker",three:"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],3:[function(e,t,i){"use strict";function a(e){return(a="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}Object.defineProperty(i,"__esModule",{value:!0}),i.default=void 0;var s=n(e("three")),o=n(e("dat.gui")),l=e("three/examples/jsm/controls/OrbitControls"),c=e("three/examples/jsm/loaders/GLTFLoader");function h(){if("function"!=typeof WeakMap)return null;var e=new WeakMap;return h=function(){return e},e}function n(e){if(e&&e.__esModule)return e;if(null===e||"object"!==a(e)&&"function"!=typeof e)return{default:e};var t=h();if(t&&t.has(e))return t.get(e);var i,n,o={},r=Object.defineProperty&&Object.getOwnPropertyDescriptor;for(i in e)Object.prototype.hasOwnProperty.call(e,i)&&((n=r?Object.getOwnPropertyDescriptor(e,i):null)&&(n.get||n.set)?Object.defineProperty(o,i,n):o[i]=e[i]);return o.default=e,t&&t.set(e,o),o}function r(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}e=function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.DOM={modelContainer:".js-model-container-shader"}}var t,i,n;return t=e,(i=[{key:"init",value:function(){this.modelContainer=document.querySelector(this.DOM.modelContainer),null!==this.modelContainer&&(s.Cache.enabled=!0,this.gui=new o.GUI({name:"Bottle config"}),this.guiConf={autoRotation:{autoRotate:!0}},this.initFBXModel(),this.animate())}},{key:"initFBXModel",value:function(){var t=this,i=[];["px","nx","py","ny","pz","nz"].forEach(function(e){i.push("".concat("https://s3-us-west-2.amazonaws.com/s.cdpn.io/1147877/winter-hdri_").concat(e).concat(".png"))});var e=(new s.CubeTextureLoader).load(i);e.format=s.RGBFormat,this.camera=new s.PerspectiveCamera(35,window.innerWidth/window.innerHeight,.5,1e3),this.camera.position.set(48,20,32),this.scene=new s.Scene,this.scene.background=e,this.scene.matrixAutoUpdate=!1;var n={uniforms:{mRefractionRatio:{value:1.02},mFresnelBias:{value:.1},mFresnelPower:{value:2},mFresnelScale:{value:1},tCube:{value:null}},vertexShader:document.querySelector("#shader-vertex").textContent,fragmentShader:document.querySelector("#shader-fragment").textContent},o=s.UniformsUtils.clone(n.uniforms);o.tCube.value=e;var r=new s.ShaderMaterial({uniforms:o,vertexShader:n.vertexShader,fragmentShader:n.fragmentShader}),n=this.modelContainer.getAttribute("data-model-source");(new c.GLTFLoader).load(n,function(e){e.scene.traverse(function(e){e.isMesh&&(e.position.y=.1,e.material=r)}),t.scene.add(e.scene)}),this.renderer=new s.WebGLRenderer({antialias:!0}),this.renderer.setPixelRatio(window.devicePixelRatio),this.renderer.setSize(window.innerWidth,window.innerHeight),this.renderer.shadowMap.enabled=!0,this.modelContainer.appendChild(this.renderer.domElement),this.controls=new l.OrbitControls(this.camera,this.renderer.domElement),this.controls.target.set(0,10,0),this.controls.autoRotate=this.guiConf.autoRotation.autoRotate,this.controls.autoRotateSpeed=1,this.gui.add(this.guiConf.autoRotation,"autoRotate").onChange(function(e){t.controls.autoRotate=!1!==e}),window.addEventListener("resize",function(){return t.onWindowResize()},!1)}},{key:"onWindowResize",value:function(){this.camera.aspect=window.innerWidth/window.innerHeight,this.camera.updateProjectionMatrix(),this.renderer.setSize(window.innerWidth,window.innerHeight)}},{key:"animate",value:function(){var e=this;requestAnimationFrame(function(){return e.animate()}),this.renderer.render(this.scene,this.camera),this.controls.update()}}])&&r(t.prototype,i),n&&r(t,n),e}();i.default=e},{"dat.gui":"dat.gui",three:"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],4:[function(e,t,i){"use strict";function o(e,t){for(var i=0;i<t.length;i++){var n=t[i];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(e,n.key,n)}}Object.defineProperty(i,"__esModule",{value:!0}),i.default=void 0;var n=function(){function e(){!function(e,t){if(!(e instanceof t))throw new TypeError("Cannot call a class as a function")}(this,e),this.DOM={navigation:".js-navigation-wrapper",states:{navigationScrolled:"has-scrolled",navigationFixed:"is-fixed",navigationSlideUp:"slide-up"}},this.scrolling=!1,this.scrollNavigationOffset=200,this.previousTop=0,this.currentTop=0,this.scrollDelta=0,this.scrollOffset=0,this.navigation=document.querySelector(this.DOM.navigation)}var t,i,n;return t=e,(i=[{key:"init",value:function(){null!==this.navigation?this.navigationController():console.error("".concat(this.DOM.navigation," does not exist in the DOM!"))}},{key:"navigationController",value:function(){var e=this;document.addEventListener("scroll",function(){e.scrolling||(e.scrolling=!0,window.requestAnimationFrame?requestAnimationFrame(function(){return e.checkScroll()}):setTimeout(e.checkScroll(),250))})}},{key:"checkScroll",value:function(){var e=window.pageYOffset|document.body.scrollTop;this.changeNavigationState(e),this.previousTop=e,this.scrolling=!1}},{key:"changeNavigationState",value:function(e){e>this.scrollNavigationOffset?this.navigation.classList.add(this.DOM.states.navigationScrolled):this.navigation.classList.remove(this.DOM.states.navigationScrolled),this.previousTop>=e?this.scrollingUp(e):this.scrollingDown(e)}},{key:"scrollingUp",value:function(e){(e<this.scrollNavigationOffset||this.previousTop-e>this.scrollDelta)&&this.navigation.classList.remove(this.DOM.states.navigationSlideUp)}},{key:"scrollingDown",value:function(e){e>this.scrollNavigationOffset+this.scrollOffset?this.navigation.classList.add(this.DOM.states.navigationSlideUp):e>this.scrollNavigationOffset&&this.navigation.classList.remove(this.DOM.states.navigationSlideUp)}}])&&o(t.prototype,i),n&&o(t,n),e}();i.default=n},{}],5:[function(e,t,i){"use strict";var n=s(e("./components/NavigationController")),o=s(e("./components/GLTFModelController")),r=s(e("./components/GLTFModelControllerShader")),a=s(e("./components/GLTFModelControllerEnvironment"));function s(e){return e&&e.__esModule?e:{default:e}}var l;l=function(){"function"==typeof GridHelper&&(new GridHelper).init();var e=["background-color: #000000","color: white","display: block","line-height: 24px","text-align: center","border: 1px solid #ffffff","font-weight: bold"].join(";");console.info("dev by: %c Bornfight ",e),(new n.default).init(),(new o.default).init(),(new r.default).init(),(new a.default).init()},"loading"!==document.readyState?l():document.addEventListener?document.addEventListener("DOMContentLoaded",l):document.attachEvent("onreadystatechange",function(){"complete"===document.readyState&&l()})},{"./components/GLTFModelController":1,"./components/GLTFModelControllerEnvironment":2,"./components/GLTFModelControllerShader":3,"./components/NavigationController":4}]},{},[5]);
+(function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var THREE = _interopRequireWildcard(require("three"));
+
+var dat = _interopRequireWildcard(require("dat.gui"));
+
+var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
+
+var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var GLTFModelController = /*#__PURE__*/function () {
+  function GLTFModelController() {
+    _classCallCheck(this, GLTFModelController);
+
+    this.DOM = {
+      modelContainer: ".js-model-container"
+    };
+  }
+
+  _createClass(GLTFModelController, [{
+    key: "init",
+    value: function init() {
+      this.modelContainer = document.querySelector(this.DOM.modelContainer);
+
+      if (this.modelContainer !== null) {
+        console.log("GLTFModelController init()");
+        this.width = this.modelContainer.offsetWidth;
+        this.height = this.modelContainer.offsetHeight;
+        THREE.Cache.enabled = true; // gui
+
+        this.gui = new dat.GUI({
+          name: "Bottle config"
+        }); // gui config
+
+        this.guiConf = {
+          light: {
+            lightIntensity: 6
+          },
+          color: {
+            color: "#0005a0"
+          },
+          autoRotation: {
+            autoRotate: true
+          },
+          opacity: {
+            transparent: true,
+            opacity: 0.3
+          },
+          glossy: {
+            glass: true,
+            emissiveColor: "#1e0f0f"
+          },
+          grid: {
+            showGrid: false
+          }
+        };
+        this.initFBXModel();
+        this.animate();
+      }
+    }
+  }, {
+    key: "initFBXModel",
+    value: function initFBXModel() {
+      var _this = this;
+
+      // camera
+      this.camera = new THREE.PerspectiveCamera(35, this.width / this.height, 0.5, 400);
+      this.camera.position.set(35, 10, 32); // scene
+
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0xffffff); // this.scene.background = new THREE.Color(0xa0a0a0);
+      // this.scene.fog = new THREE.Fog(0xa0a0a0, 200, 400);
+      // lights
+
+      var hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
+      hemiLight.position.set(0, 200, 0);
+      this.scene.add(hemiLight);
+      this.ambientLight = new THREE.AmbientLight(0x404040);
+      this.ambientLight.matrixAutoUpdate = false;
+      this.scene.add(this.ambientLight); // this is just back light - without it back side of model would be barely visible
+
+      this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 1);
+      this.dirSubLight.position.set(-20, 20, -20);
+      this.dirSubLight.matrixAutoUpdate = false;
+      this.scene.add(this.dirSubLight);
+      this.dirLight = new THREE.DirectionalLight(0xcccccc, this.guiConf.light.lightIntensity);
+      this.dirLight.position.set(20, 30, 20);
+      this.dirLight.castShadow = true;
+      this.dirLight.shadow.camera.top = 180;
+      this.dirLight.shadow.camera.bottom = -100;
+      this.dirLight.shadow.camera.left = -120;
+      this.dirLight.shadow.camera.right = 120;
+      this.dirLight.shadow.mapSize.width = 4096;
+      this.dirLight.shadow.mapSize.height = 4096;
+      this.dirLight.matrixAutoUpdate = false;
+      this.dirLight.shadow.radius = 4;
+      this.dirLight.shadow.bias = 0.0001;
+      this.scene.add(this.dirLight); // add gui for light intensity
+
+      this.gui.add(this.guiConf.light, "lightIntensity", 1, 10, 0.1).onChange(function (value) {
+        _this.dirLight.intensity = value;
+      }); // ground
+      // const mesh = new THREE.Mesh(
+      //     new THREE.PlaneBufferGeometry(1000, 1000, 1, 1),
+      //     new THREE.MeshPhongMaterial({ color: 0xeeeeee, depthWrite: false }),
+      // );
+      // mesh.material.color.convertSRGBToLinear();
+      // mesh.rotation.x = -Math.PI / 2;
+      // mesh.receiveShadow = true;
+      // this.scene.add(mesh);
+      // ground grid
+
+      var grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+      grid.material.opacity = 0.1;
+      grid.material.transparent = true;
+      this.scene.add(grid);
+
+      if (!this.guiConf.grid.showGrid) {
+        grid.visible = false;
+      } // add gui for grid
+
+
+      this.gui.add(this.guiConf.grid, "showGrid").onChange(function (value) {
+        grid.visible = !!value;
+      }); // renderer
+
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        depth: false,
+        powerPreference: "high-performance"
+      });
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.setSize(this.width, this.height);
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.gammaFactor = 2.2;
+      this.renderer.outputEncoding = THREE.sRGBEncoding;
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.shadowMap.type = THREE.PCFShadowMap;
+      this.modelContainer.appendChild(this.renderer.domElement); // loader
+
+      this.loadModel(); // orbit controls
+
+      this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.target.set(0, 10, 0);
+      this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
+      this.controls.autoRotateSpeed = 1;
+      this.controls.enableZoom = false;
+      this.controls.enablePan = false; // this.controls.maxPolarAngle = Math.PI / 2;
+      // this.controls.minPolarAngle = Math.PI / 3;
+
+      this.gui.add(this.guiConf.autoRotation, "autoRotate").onChange(function (value) {
+        console.log(value);
+        _this.controls.autoRotate = value !== false;
+      }); // handle resize
+
+      window.addEventListener("resize", function () {
+        return _this.onWindowResize();
+      }, false);
+    }
+  }, {
+    key: "loadModel",
+    value: function loadModel() {
+      var _this2 = this;
+
+      // get model
+      var model = this.modelContainer.getAttribute("data-model-source"); // loader
+
+      var loader = new _GLTFLoader.GLTFLoader();
+      loader.load(model, function (model) {
+        // dynamically change material
+        var material = new THREE.MeshPhysicalMaterial({
+          color: _this2.guiConf.color.color,
+          depthFunc: false
+        });
+        material.color.convertSRGBToLinear();
+        model.scene.traverse(function (object) {
+          if (object.isMesh) {
+            object.position.y = 0.1;
+            object.castShadow = true;
+            object.material.side = 2;
+            object.material.shadowSide = 1;
+            object.material.metalness = 0;
+            object.material.opacity = _this2.guiConf.opacity.opacity;
+            object.material.emissive.set(_this2.guiConf.glossy.emissiveColor);
+            object.material.depthFunc = false;
+            object.material.color.convertSRGBToLinear();
+            object.matrixAutoUpdate = false; // reflection map
+
+            var path = "/three.js-playground/static/images/maps/";
+            var mapUrls = [path + "posx.jpg", path + "negx.jpg", path + "posy.jpg", path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"];
+            var cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
+            cubeMap.format = THREE.RGBFormat;
+            cubeMap.encoding = THREE.sRGBEncoding;
+            object.material.envMap = cubeMap;
+            object.material.needsUpdate = false; // store material
+
+            var initMaterial = object.material; // initial material setup
+
+            if (_this2.guiConf.opacity.transparent === false) {
+              object.material = material;
+            } else {
+              object.material = initMaterial;
+            } // if initial glass state is true
+
+
+            if (_this2.guiConf.glossy.glass) {
+              _this2.glassOptions(object.material);
+            }
+
+            _this2.gui.addColor(_this2.guiConf.color, "color").onChange(function (colorValue) {
+              object.material.color.set(colorValue);
+            });
+
+            _this2.gui.add(_this2.guiConf.opacity, "transparent").onChange(function (value) {
+              if (value === false) {
+                object.material = material;
+              } else {
+                object.material = initMaterial;
+              }
+
+              if (_this2.guiConf.glossy.glass) {
+                _this2.glassOptions(object.material);
+              }
+            });
+
+            _this2.gui.add(_this2.guiConf.opacity, "opacity", 0.25, 0.75, 0.01).onChange(function (opacityValue) {
+              object.material.opacity = opacityValue;
+            });
+
+            _this2.gui.addColor(_this2.guiConf.glossy, "emissiveColor").onChange(function (colorValue) {
+              object.material.emissive.set(colorValue);
+            });
+
+            _this2.gui.add(_this2.guiConf.glossy, "glass").onChange(function (value) {
+              if (value) {
+                _this2.glassOptions(object.material);
+              } else {
+                _this2.matteOptions(object.material);
+              }
+            });
+          }
+        });
+
+        _this2.scene.add(model.scene);
+
+        _this2.dirLight.updateMatrix();
+
+        _this2.dirSubLight.updateMatrix();
+
+        _this2.ambientLight.updateMatrix();
+      });
+    }
+  }, {
+    key: "glassOptions",
+    value: function glassOptions(material) {
+      material.refractionRatio = 1;
+      material.reflectivity = 1;
+      material.roughness = 0;
+      material.clearcoat = 1;
+      material.clearcoatRoughness = 0;
+    }
+  }, {
+    key: "matteOptions",
+    value: function matteOptions(material) {
+      material.refractionRatio = 0;
+      material.reflectivity = 0;
+      material.roughness = 0.5;
+      material.clearcoat = 0;
+      material.clearcoatRoughness = 0.5;
+    }
+  }, {
+    key: "onWindowResize",
+    value: function onWindowResize() {
+      this.camera.aspect = this.width / this.height;
+      this.renderer.setSize(this.width, this.height);
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      var _this3 = this;
+
+      requestAnimationFrame(function () {
+        return _this3.animate();
+      });
+      this.renderer.render(this.scene, this.camera);
+      this.controls.update();
+    }
+  }]);
+
+  return GLTFModelController;
+}();
+
+exports.default = GLTFModelController;
+
+},{"dat.gui":"dat.gui","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],2:[function(require,module,exports){
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var THREE = _interopRequireWildcard(require("three"));
+
+var _simpleColorPicker = _interopRequireDefault(require("simple-color-picker"));
+
+var _gsap = _interopRequireDefault(require("gsap"));
+
+var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
+
+var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var GLTFModelControllerEnvironment = /*#__PURE__*/function () {
+  function GLTFModelControllerEnvironment() {
+    _classCallCheck(this, GLTFModelControllerEnvironment);
+
+    this.DOM = {
+      modelContainer: ".js-model-container-environment",
+      // filters
+      // color
+      colorWrapper: ".js-color",
+      colorInput: ".js-color-input",
+      colorPreview: ".js-color-preview",
+      // opacity
+      opacityWrapper: ".js-opacity",
+      opacityInput: ".js-opacity-input",
+      opacityPreview: ".js-opacity-preview",
+      // transparent
+      transparentWrapper: ".js-transparent",
+      // finish
+      finishWrapper: ".js-finish"
+    }; // config
+
+    this.config = {
+      light: {
+        lightIntensity: 6
+      },
+      color: {
+        color: "#0005a0"
+      },
+      autoRotation: {
+        autoRotate: true
+      },
+      opacity: {
+        transparent: false,
+        opacity: 0.3
+      },
+      finish: {
+        clear: true
+      },
+      environment: {
+        showEnvironment: true,
+        color: "#0005a0"
+      }
+    };
+  }
+  /**
+   * main init - all dom elements and method calls
+   */
+
+
+  _createClass(GLTFModelControllerEnvironment, [{
+    key: "init",
+    value: function init() {
+      var _this = this;
+
+      this.modelContainer = document.querySelector(this.DOM.modelContainer);
+
+      if (this.modelContainer !== null) {
+        console.log("GLTFModelController init()");
+        THREE.Cache.enabled = true;
+        this.colorWrapper = document.querySelector(this.DOM.colorWrapper);
+        this.colorInput = this.colorWrapper.querySelector(this.DOM.colorInput);
+        this.colorPreview = this.colorWrapper.querySelector(this.DOM.colorPreview);
+        this.opacityWrapper = document.querySelector(this.DOM.opacityWrapper);
+        this.opacityInput = this.opacityWrapper.querySelector(this.DOM.opacityInput);
+        this.opacityPreview = this.opacityWrapper.querySelector(this.DOM.opacityPreview);
+        this.transparentWrapper = document.querySelector(this.DOM.transparentWrapper);
+        this.transparentInputs = this.transparentWrapper.querySelectorAll("input"); // preset transparency radio btns
+
+        this.transparentInputs.forEach(function (input) {
+          if (_this.config.opacity.transparent && input.value === "transparent") {
+            input.checked = true;
+            _this.opacityWrapper.style.display = "";
+          } else if (!_this.config.opacity.transparent && input.value === "tinted") {
+            input.checked = true;
+            _this.opacityWrapper.style.display = "none";
+          }
+        });
+        this.finishWrapper = document.querySelector(this.DOM.finishWrapper);
+        this.finishInputs = this.finishWrapper.querySelectorAll("input"); // preset finish radio btns
+
+        this.finishInputs.forEach(function (input) {
+          if (_this.config.finish.clear && input.value === "clear") {
+            input.checked = true;
+          } else if (!_this.config.finish.clear && input.value === "matte") {
+            input.checked = true;
+          }
+        });
+        this.colorPicker = new _simpleColorPicker.default();
+        this.colorPicker.appendTo(this.colorInput); // preset colorpicker
+
+        this.colorPicker.setColor(this.config.color.color);
+        this.width = this.modelContainer.offsetWidth;
+        this.height = this.modelContainer.offsetHeight;
+        this.isPlaying = false; // reflection map
+
+        var path = "/three.js-playground/static/images/maps/";
+        var mapUrls = [path + "posx.jpg", path + "negx.jpg", path + "posy.jpg", path + "negy.jpg", path + "posz.jpg", path + "negz.jpg"];
+        this.cubeMap = new THREE.CubeTextureLoader().load(mapUrls);
+        this.cubeMap.format = THREE.RGBFormat;
+        this.cubeMap.encoding = THREE.sRGBEncoding;
+        this.initCamera();
+        this.initScene();
+        this.initLights();
+        this.initEnvironment();
+        this.initRenderer();
+        this.initControls();
+        this.initModel(); // this will remove model and stop animation and after 3s will create new model
+        // setTimeout(() => {
+        //     this.clearModel();
+        // }, 5000);
+        // handle resize
+
+        window.addEventListener("resize", function () {
+          return _this.onWindowResize();
+        }, false);
+      }
+    }
+    /**
+     * camera setup
+     */
+
+  }, {
+    key: "initCamera",
+    value: function initCamera() {
+      this.camera = new THREE.PerspectiveCamera(35, this.width / this.height, 0.5, 600);
+      this.camera.position.set(10, 10, 40);
+    }
+    /**
+     * scene setup
+     */
+
+  }, {
+    key: "initScene",
+    value: function initScene() {
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0xffffff);
+    }
+    /**
+     * lights setup - because of performance > all in one object
+     */
+
+  }, {
+    key: "initLights",
+    value: function initLights() {
+      var lightWrapper = new THREE.Object3D();
+      var hemiLight = new THREE.HemisphereLight(0xffffff, 0x999999);
+      hemiLight.position.set(0, 200, 0);
+      lightWrapper.add(hemiLight);
+      this.ambientLight = new THREE.AmbientLight(0x404040);
+      this.ambientLight.matrixAutoUpdate = false;
+      lightWrapper.add(this.ambientLight); // this is just back light - without it back side of model would be barely visible
+
+      this.dirSubLight = new THREE.DirectionalLight(0xcccccc, 3);
+      this.dirSubLight.position.set(-20, 20, -20);
+      this.dirSubLight.matrixAutoUpdate = false;
+      lightWrapper.add(this.dirSubLight);
+      this.dirLight = new THREE.DirectionalLight(0xdddddd, this.config.light.lightIntensity);
+      this.dirLight.position.set(20, 30, 10);
+      this.dirLight.castShadow = true;
+      this.dirLight.shadow.camera.top = 180;
+      this.dirLight.shadow.camera.bottom = -100;
+      this.dirLight.shadow.camera.left = -120;
+      this.dirLight.shadow.camera.right = 120;
+      this.dirLight.shadow.mapSize.width = 4096;
+      this.dirLight.shadow.mapSize.height = 4096;
+      this.dirLight.matrixAutoUpdate = false;
+      this.dirLight.shadow.radius = 4;
+      this.dirLight.shadow.bias = 0.0001;
+      lightWrapper.add(this.dirLight);
+      this.scene.add(lightWrapper);
+    }
+    /**
+     * environment setup - box geometry
+     */
+
+  }, {
+    key: "initEnvironment",
+    value: function initEnvironment() {
+      this.environment = new THREE.Mesh(new THREE.BoxBufferGeometry(100, 100, 100), new THREE.MeshStandardMaterial({
+        depthWrite: false,
+        refractionRatio: 0,
+        roughness: 1,
+        side: THREE.DoubleSide
+      }));
+      this.environment.position.y = 50;
+      this.environment.receiveShadow = true;
+      this.environment.material.color.set(this.config.environment.color);
+      this.scene.add(this.environment);
+
+      if (!this.config.environment.showEnvironment) {
+        this.environment.visible = false;
+      }
+    }
+    /**
+     * renderer setup
+     */
+
+  }, {
+    key: "initRenderer",
+    value: function initRenderer() {
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        depth: false,
+        powerPreference: "high-performance"
+      });
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.setSize(this.width, this.height);
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.gammaFactor = 2.2;
+      this.renderer.outputEncoding = THREE.sRGBEncoding;
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.shadowMap.type = THREE.PCFShadowMap;
+      this.modelContainer.appendChild(this.renderer.domElement);
+    }
+    /**
+     * orbit controls setup
+     */
+
+  }, {
+    key: "initControls",
+    value: function initControls() {
+      this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.target.set(0, 10, 0);
+      this.controls.autoRotate = this.config.autoRotation.autoRotate;
+      this.controls.autoRotateSpeed = 1;
+      this.controls.enableZoom = false;
+      this.controls.enablePan = false;
+      this.controls.enableDamping = true;
+      this.controls.dampingFactor = 0.1;
+      this.controls.maxPolarAngle = Math.PI / 1.8;
+      this.controls.minPolarAngle = Math.PI / 3.5;
+    }
+    /**
+     * model setup and load call
+     */
+
+  }, {
+    key: "initModel",
+    value: function initModel() {
+      var _this2 = this;
+
+      this.isPlaying = true;
+      this.animate(); // get model
+
+      var model = this.modelContainer.getAttribute("data-model-source"); // loader
+
+      var loader = new _GLTFLoader.GLTFLoader();
+      this.model = null;
+      loader.load(model, function (model) {
+        model.scene.traverse(function (object) {
+          _this2.loadModel(object);
+        });
+        _this2.model = model.scene;
+        model.scene.name = "3d-model";
+
+        _this2.scene.add(model.scene);
+
+        _this2.dirLight.updateMatrix();
+
+        _this2.dirSubLight.updateMatrix();
+
+        _this2.ambientLight.updateMatrix();
+      });
+    }
+    /**
+     * moadel loading and controller call
+     * @param [object] object
+     */
+
+  }, {
+    key: "loadModel",
+    value: function loadModel(object) {
+      if (object.isMesh) {
+        object.position.y = 0.1;
+        object.castShadow = true;
+        object.material.side = 2;
+        object.material.shadowSide = 1;
+        object.material.metalness = 0;
+        object.material.opacity = this.config.opacity.opacity;
+        object.material.depthFunc = false;
+        object.material.depthWrite = !this.config.opacity.transparent;
+        object.material.transparent = this.config.opacity.transparent;
+        object.material.color.set(this.colorPicker.getHexNumber());
+        object.material.color.convertSRGBToLinear();
+
+        if (!this.config.opacity.transparent) {
+          object.material.side = null;
+          object.material.shadowSide = null;
+        }
+
+        object.matrixAutoUpdate = false;
+        object.material.needsUpdate = false;
+
+        if (this.config.opacity.transparent) {
+          object.material.envMap = this.cubeMap;
+        } // if initial glass state is true
+
+
+        if (this.config.finish.clear) {
+          this.clearOptions(object.material);
+        }
+
+        this.filtersController(object);
+        this.revealAnimation(object);
+      }
+    }
+  }, {
+    key: "revealAnimation",
+    value: function revealAnimation(object) {
+      object.scale.set(0.001, 0.001, 0.001);
+      object.rotation.y = -4.5;
+      object.updateMatrix();
+      setTimeout(function () {
+        _gsap.default.to(object.rotation, {
+          duration: 1,
+          ease: "power3.out",
+          y: 0
+        });
+
+        _gsap.default.to(object.scale, {
+          duration: 1,
+          ease: "elastic.out(1, 0.5)",
+          x: 1,
+          y: 1,
+          z: 1,
+          onUpdate: function onUpdate() {
+            object.updateMatrix();
+          }
+        });
+      }, 600);
+    }
+    /**
+     * filters controller
+     * @param [object] object
+     */
+
+  }, {
+    key: "filtersController",
+    value: function filtersController(object) {
+      var _this3 = this;
+
+      // color change
+      this.colorPicker.onChange(function () {
+        object.material.color.set(_this3.colorPicker.getHexNumber());
+        _this3.colorPreview.innerHTML = _this3.colorPicker.getHexString();
+      }); // opacity change
+
+      this.opacityInput.value = this.config.opacity.opacity * 100;
+      this.opacityInput.addEventListener("input", function () {
+        object.material.opacity = _this3.opacityInput.value / 100;
+        _this3.opacityPreview.innerHTML = "".concat(_this3.opacityInput.value, "%");
+      }); // transparency change
+
+      this.transparentInputs.forEach(function (input) {
+        input.addEventListener("change", function () {
+          object.material.transparent = input.value === "transparent";
+          object.material.depthWrite = input.value !== "transparent";
+          _this3.opacityWrapper.style.display = input.value === "transparent" ? "" : "none";
+          object.material.envMap = input.value !== "transparent" ? null : _this3.cubeMap;
+          object.material.side = input.value !== "transparent" ? null : 2;
+          object.material.shadowSide = input.value !== "transparent" ? null : 1;
+          object.material.needsUpdate = true;
+        });
+      }); // finish change
+
+      this.finishInputs.forEach(function (input) {
+        input.addEventListener("change", function () {
+          if (input.value === "clear") {
+            _this3.clearOptions(object.material);
+          } else {
+            _this3.matteOptions(object.material);
+          }
+        });
+      });
+    }
+    /**
+     * finish clear method
+     * @param material
+     */
+
+  }, {
+    key: "clearOptions",
+    value: function clearOptions(material) {
+      material.refractionRatio = 1;
+      material.reflectivity = 1;
+      material.roughness = 0;
+      material.clearcoat = 1;
+      material.clearcoatRoughness = 0;
+    }
+    /**
+     * finish matte method
+     * @param material
+     */
+
+  }, {
+    key: "matteOptions",
+    value: function matteOptions(material) {
+      material.refractionRatio = 0;
+      material.reflectivity = 0;
+      material.roughness = 0.5;
+      material.clearcoat = 0;
+      material.clearcoatRoughness = 0.5;
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "onWindowResize",
+    value: function onWindowResize() {
+      this.camera.aspect = this.width / this.height;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(this.width, this.height);
+    }
+    /**
+     * requestAnimationFrame
+     */
+
+  }, {
+    key: "animate",
+    value: function animate() {
+      var _this4 = this;
+
+      this.renderer.render(this.scene, this.camera);
+      this.controls.update();
+
+      if (this.renderer != null && this.isPlaying) {
+        requestAnimationFrame(function () {
+          return _this4.animate();
+        });
+      }
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "clearModel",
+    value: function clearModel() {
+      var _this5 = this;
+
+      this.isPlaying = false;
+      this.scene.remove(this.model);
+      setTimeout(function () {
+        _this5.initModel();
+      }, 3000);
+    }
+  }]);
+
+  return GLTFModelControllerEnvironment;
+}();
+
+exports.default = GLTFModelControllerEnvironment;
+
+},{"gsap":"gsap","simple-color-picker":"simple-color-picker","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],3:[function(require,module,exports){
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var THREE = _interopRequireWildcard(require("three"));
+
+var dat = _interopRequireWildcard(require("dat.gui"));
+
+var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
+
+var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var GLTFModelControllerShader = /*#__PURE__*/function () {
+  function GLTFModelControllerShader() {
+    _classCallCheck(this, GLTFModelControllerShader);
+
+    this.DOM = {
+      modelContainer: ".js-model-container-shader"
+    };
+  }
+
+  _createClass(GLTFModelControllerShader, [{
+    key: "init",
+    value: function init() {
+      this.modelContainer = document.querySelector(this.DOM.modelContainer);
+
+      if (this.modelContainer !== null) {
+        console.log("GLTFModelControllerShader init()");
+        THREE.Cache.enabled = true;
+        this.gui = new dat.GUI({
+          name: "Bottle config"
+        });
+        this.guiConf = {
+          autoRotation: {
+            autoRotate: true
+          }
+        };
+        this.initFBXModel();
+        this.animate();
+      }
+    }
+  }, {
+    key: "initFBXModel",
+    value: function initFBXModel() {
+      var _this = this;
+
+      // environment
+      var path = "https://s3-us-west-2.amazonaws.com/s.cdpn.io/1147877/winter-hdri_";
+      var format = ".png";
+      var order = ["px", "nx", "py", "ny", "pz", "nz"];
+      var urls = [];
+      order.forEach(function (side) {
+        urls.push("".concat(path).concat(side).concat(format));
+      });
+      var textureCube = new THREE.CubeTextureLoader().load(urls);
+      textureCube.format = THREE.RGBFormat; // camera
+
+      this.camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.5, 1000);
+      this.camera.position.set(48, 20, 32); // scene
+
+      this.scene = new THREE.Scene();
+      this.scene.background = textureCube;
+      this.scene.matrixAutoUpdate = false; // shaders config
+
+      var shader = {
+        uniforms: {
+          mRefractionRatio: {
+            value: 1.02
+          },
+          mFresnelBias: {
+            value: 0.1
+          },
+          mFresnelPower: {
+            value: 2.0
+          },
+          mFresnelScale: {
+            value: 1.0
+          },
+          tCube: {
+            value: null
+          }
+        },
+        vertexShader: document.querySelector("#shader-vertex").textContent,
+        fragmentShader: document.querySelector("#shader-fragment").textContent
+      };
+      var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+      uniforms["tCube"].value = textureCube; // glass material
+
+      var material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: shader.vertexShader,
+        fragmentShader: shader.fragmentShader
+      }); // get model
+
+      var model = this.modelContainer.getAttribute("data-model-source"); // loader
+
+      var loader = new _GLTFLoader.GLTFLoader();
+      loader.load(model, function (model) {
+        model.scene.traverse(function (object) {
+          if (object.isMesh) {
+            object.position.y = 0.1;
+            object.material = material;
+          }
+        });
+
+        _this.scene.add(model.scene);
+      }); // renderer
+
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true
+      });
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.shadowMap.enabled = true;
+      this.modelContainer.appendChild(this.renderer.domElement); // orbit controls
+
+      this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.target.set(0, 10, 0);
+      this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
+      this.controls.autoRotateSpeed = 1;
+      this.gui.add(this.guiConf.autoRotation, "autoRotate").onChange(function (value) {
+        _this.controls.autoRotate = value !== false;
+      }); // handle resize
+
+      window.addEventListener("resize", function () {
+        return _this.onWindowResize();
+      }, false);
+    }
+  }, {
+    key: "onWindowResize",
+    value: function onWindowResize() {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      var _this2 = this;
+
+      requestAnimationFrame(function () {
+        return _this2.animate();
+      });
+      this.renderer.render(this.scene, this.camera);
+      this.controls.update();
+    }
+  }]);
+
+  return GLTFModelControllerShader;
+}();
+
+exports.default = GLTFModelControllerShader;
+
+},{"dat.gui":"dat.gui","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],4:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * "smart" navigation which goes off screen when scrolling down for a better overview of content and UX
+ * navigation appears when scrolling up
+ */
+var NavigationController = /*#__PURE__*/function () {
+  function NavigationController() {
+    _classCallCheck(this, NavigationController);
+
+    /**
+     * Navigation DOM selectors
+     * Navigation DOM state CSS classes
+     * @type {{navigation: string, states: {navigationSlideUp: string, navigationScrolled: string, navigationFixed: string}}}
+     */
+    this.DOM = {
+      navigation: ".js-navigation-wrapper",
+      states: {
+        navigationScrolled: "has-scrolled",
+        navigationFixed: "is-fixed",
+        navigationSlideUp: "slide-up"
+      }
+    };
+    /**
+     * flag, state variable for scrolling event
+     * @type {boolean}
+     */
+
+    this.scrolling = false;
+    /**
+     * amount of pixels to scroll from top for adding "has-scrolled" state class
+     * @type {number}
+     */
+
+    this.scrollNavigationOffset = 200;
+    /**
+     * variable for storing amount of scroll from top position value
+     * @type {number}
+     */
+
+    this.previousTop = 0;
+    /**
+     * variable for storing current scroll position value
+     * @type {number}
+     */
+
+    this.currentTop = 0;
+    this.scrollDelta = 0;
+    this.scrollOffset = 0;
+    /**
+     * fetch navigation element DOM element
+     * @type {Element}
+     */
+
+    this.navigation = document.querySelector(this.DOM.navigation);
+  } //region methods
+
+  /**
+   *
+   */
+
+
+  _createClass(NavigationController, [{
+    key: "init",
+    value: function init() {
+      console.log("Navigation init()");
+
+      if (this.navigation !== null) {
+        this.navigationController();
+      } else {
+        console.error("".concat(this.DOM.navigation, " does not exist in the DOM!"));
+      }
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "navigationController",
+    value: function navigationController() {
+      var _this = this;
+
+      document.addEventListener("scroll", function () {
+        if (!_this.scrolling) {
+          _this.scrolling = true;
+
+          if (!window.requestAnimationFrame) {
+            setTimeout(_this.checkScroll(), 250);
+          } else {
+            requestAnimationFrame(function () {
+              return _this.checkScroll();
+            });
+          }
+        }
+      });
+    }
+    /**
+     *
+     */
+
+  }, {
+    key: "checkScroll",
+    value: function checkScroll() {
+      /**
+       *
+       * @type {number}
+       */
+      var currentTop = window.pageYOffset | document.body.scrollTop;
+      this.changeNavigationState(currentTop);
+      this.previousTop = currentTop;
+      this.scrolling = false;
+    }
+    /**
+     *
+     * @param currentTop
+     */
+
+  }, {
+    key: "changeNavigationState",
+    value: function changeNavigationState(currentTop) {
+      if (currentTop > this.scrollNavigationOffset) {
+        this.navigation.classList.add(this.DOM.states.navigationScrolled);
+      } else {
+        this.navigation.classList.remove(this.DOM.states.navigationScrolled);
+      }
+
+      if (this.previousTop >= currentTop) {
+        this.scrollingUp(currentTop);
+      } else {
+        this.scrollingDown(currentTop);
+      }
+    }
+    /**
+     *
+     * @param currentTop
+     */
+
+  }, {
+    key: "scrollingUp",
+    value: function scrollingUp(currentTop) {
+      if (currentTop < this.scrollNavigationOffset) {
+        this.navigation.classList.remove(this.DOM.states.navigationSlideUp);
+      } else if (this.previousTop - currentTop > this.scrollDelta) {
+        this.navigation.classList.remove(this.DOM.states.navigationSlideUp);
+      }
+    }
+    /**
+     *
+     * @param currentTop
+     */
+
+  }, {
+    key: "scrollingDown",
+    value: function scrollingDown(currentTop) {
+      if (currentTop > this.scrollNavigationOffset + this.scrollOffset) {
+        this.navigation.classList.add(this.DOM.states.navigationSlideUp);
+      } else if (currentTop > this.scrollNavigationOffset) {
+        this.navigation.classList.remove(this.DOM.states.navigationSlideUp);
+      }
+    } //endregion
+
+  }]);
+
+  return NavigationController;
+}();
+
+exports.default = NavigationController;
+
+},{}],5:[function(require,module,exports){
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Grid helper
+ * Show grid overlay when developing
+ * Not included in production bundle JS file
+ */
+var GridHelper = /*#__PURE__*/function () {
+  function GridHelper() {
+    _classCallCheck(this, GridHelper);
+
+    /**
+     * Grid DOM selector
+     * @type {{grid: string}}
+     */
+    this.DOM = {
+      grid: "grid"
+    };
+    /**
+     * Grid options
+     * @type {{gutterFixed: boolean, initialDisplay: string, gridFixed: boolean, gutterWidth: number, gridColor: string, columnCount: number, gridWidth: number, columnBgColor: string}}
+     */
+
+    this.gridOptions = {
+      initialDisplay: "none",
+      // "flex" or "none"
+      columnCount: 24,
+      gridWidth: 1440,
+      // px
+      gridFixed: true,
+      gutterWidth: 0,
+      // px
+      gutterFixed: false,
+      gridColor: "rgb(255, 0, 255, 0.15)",
+      columnBgColor: "rgb(255, 0, 255, 0.025)"
+    };
+    var consoleLogStyle = ["background-color: #a6a6a6", "color: black", "display: block", "line-height: 24px", "text-align: center", "border: 1px solid #ffffff", "font-weight: bold"].join(";");
+    console.info("toggle grid: %c Alt/Option + G ", consoleLogStyle);
+    this.grid = null;
+    this.columnWidth = (this.gridOptions.gridWidth - (this.gridOptions.columnCount - 1) * this.gridOptions.gutterWidth) / this.gridOptions.columnCount;
+    this.columnWidthPercentage = "".concat(this.columnWidth / this.gridOptions.gridWidth * 100, "%");
+    this.gutterWidthPercentage = "".concat(this.gridOptions.gutterWidth / this.gridOptions.gridWidth * 100, "%");
+  }
+
+  _createClass(GridHelper, [{
+    key: "init",
+    value: function init() {
+      console.log("GridHelper init()");
+      this.initGrid();
+      this.keyboardShortcut();
+    }
+  }, {
+    key: "initGrid",
+    value: function initGrid() {
+      // create grid overlay element
+      this.grid = document.createElement("div");
+      this.grid.id = this.DOM.grid; // style grid element
+
+      this.grid.style.cssText = "\n            pointer-events: none;\n            display: ".concat(this.gridOptions.initialDisplay, ";\n            flex-direction: row;\n            width: 100%;\n            height: 100%;\n            position: absolute;\n            top: 0;\n            left: 50%;\n            transform: translateX(-50%);\n            z-index: 999;\n        ");
+
+      if (this.gridOptions.gridFixed === true) {
+        this.grid.style.maxWidth = "".concat(this.gridOptions.gridWidth, "px");
+      }
+
+      if (!this.gridOptions.gutterWidth > 0) {
+        this.grid.style.borderLeft = "none";
+      } // add grid container to page
+
+
+      document.body.appendChild(this.grid); // add columns to grid
+
+      for (var i = 0; i < this.gridOptions.columnCount; i++) {
+        var column = document.createElement("i");
+        this.grid.appendChild(column);
+        column.style.cssText = "\n                height: auto;\n                flex-grow: 1;\n                background-color: ".concat(this.gridOptions.columnBgColor, ";\n                border-left: 1px solid ").concat(this.gridOptions.gridColor, ";\n            ");
+
+        if (this.gridOptions.gutterWidth > 0) {
+          column.style.borderRight = "1px solid ".concat(this.gridOptions.gridColor);
+        } else {
+          this.grid.style.borderRight = "1px solid ".concat(this.gridOptions.gridColor);
+        }
+
+        if (this.gridOptions.gutterFixed === true) {
+          column.style.marginRight = "".concat(this.gridOptions.gutterWidth, "px");
+        } else {
+          column.style.marginRight = this.gutterWidthPercentage;
+          column.style.width = this.columnWidthPercentage;
+        }
+      }
+
+      this.grid.lastChild.style.marginRight = 0;
+    }
+  }, {
+    key: "keyboardShortcut",
+    value: function keyboardShortcut() {
+      var _this = this;
+
+      document.addEventListener("keyup", function (ev) {
+        if (ev.keyCode === 71 && ev.altKey) {
+          if (_this.grid.style.display === "none") {
+            _this.grid.style.display = "flex";
+          } else {
+            _this.grid.style.display = "none";
+          }
+        }
+      });
+    }
+  }]);
+
+  return GridHelper;
+}();
+
+exports.default = GridHelper;
+
+},{}],6:[function(require,module,exports){
+"use strict";
+
+var _GridHelper = _interopRequireDefault(require("./helpers/GridHelper"));
+
+var _NavigationController = _interopRequireDefault(require("./components/NavigationController"));
+
+var _GLTFModelController = _interopRequireDefault(require("./components/GLTFModelController"));
+
+var _GLTFModelControllerShader = _interopRequireDefault(require("./components/GLTFModelControllerShader"));
+
+var _GLTFModelControllerEnvironment = _interopRequireDefault(require("./components/GLTFModelControllerEnvironment"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * MAIN JS FILE
+ */
+
+/**
+ * Helpers
+ * Imports of helper functions are stripped out of bundle
+ * Include them within "start-strip-code" and "end-strip-code" comments
+ */
+
+/* start-strip-code */
+
+/* end-strip-code */
+
+/**
+ * Components
+ */
+
+/**
+ * Check if document is ready cross-browser
+ * @param callback
+ */
+var ready = function ready(callback) {
+  if (document.readyState !== "loading") {
+    /**
+     * Document is already ready, call the callback directly
+     */
+    callback();
+  } else if (document.addEventListener) {
+    /**
+     * All modern browsers to register DOMContentLoaded
+     */
+    document.addEventListener("DOMContentLoaded", callback);
+  } else {
+    /**
+     * Old IE browsers
+     */
+    document.attachEvent("onreadystatechange", function () {
+      if (document.readyState === "complete") {
+        callback();
+      }
+    });
+  }
+};
+/**
+ * Document ready callback
+ */
+
+
+ready(function () {
+  /**
+   * HELPERS INIT
+   * Only init helpers if they exist
+   * Will be undefined on production because of import stripping
+   */
+  if (typeof _GridHelper.default == "function") {
+    var grid = new _GridHelper.default();
+    grid.init();
+  }
+  /**
+   * CREDITS INIT
+   */
+
+
+  var credits = ["background-color: #000000", "color: white", "display: block", "line-height: 24px", "text-align: center", "border: 1px solid #ffffff", "font-weight: bold"].join(";");
+  console.info("dev by: %c Bornfight ", credits);
+  /**
+   * COMPONENTS INIT
+   */
+
+  /**
+   * Navigation
+   * @type {NavigationController}
+   */
+
+  var navigation = new _NavigationController.default();
+  navigation.init();
+  var gltfModelController = new _GLTFModelController.default();
+  gltfModelController.init();
+  var gLTFModelControllerShader = new _GLTFModelControllerShader.default();
+  gLTFModelControllerShader.init();
+  var gLTFModelControllerEnvironment = new _GLTFModelControllerEnvironment.default();
+  gLTFModelControllerEnvironment.init();
+});
+
+},{"./components/GLTFModelController":1,"./components/GLTFModelControllerEnvironment":2,"./components/GLTFModelControllerShader":3,"./components/NavigationController":4,"./helpers/GridHelper":5}]},{},[6])
+
+//# sourceMappingURL=bundle.js.map
