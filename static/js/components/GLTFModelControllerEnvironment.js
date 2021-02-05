@@ -9,6 +9,7 @@ export default class GLTFModelControllerEnvironment {
     constructor() {
         this.DOM = {
             modelContainer: ".js-model-container-environment",
+            download: ".js-download-image",
 
             // filters
             // color
@@ -90,15 +91,9 @@ export default class GLTFModelControllerEnvironment {
 
             // preset finish radio btns
             this.finishInputs.forEach((input) => {
-                if (
-                    this.config.finish.clear &&
-                    input.value === "clear"
-                ) {
+                if (this.config.finish.clear && input.value === "clear") {
                     input.checked = true;
-                } else if (
-                    !this.config.finish.clear &&
-                    input.value === "matte"
-                ) {
+                } else if (!this.config.finish.clear && input.value === "matte") {
                     input.checked = true;
                 }
             });
@@ -106,7 +101,7 @@ export default class GLTFModelControllerEnvironment {
             this.colorPicker = new ColorPicker();
             this.colorPicker.appendTo(this.colorInput);
 
-            // preset colorpicker
+            // preset color picker
             this.colorPicker.setColor(this.config.color.color);
 
             this.width = this.modelContainer.offsetWidth;
@@ -140,10 +135,16 @@ export default class GLTFModelControllerEnvironment {
             // this will remove model and stop animation and after 3s will create new model
             // setTimeout(() => {
             //     this.clearModel();
-            // }, 5000);
+            // }, 3000);
 
             // handle resize
             window.addEventListener("resize", () => this.onWindowResize(), false);
+
+            this.downloadAnchor = document.querySelector(this.DOM.download);
+            this.downloadAnchor.addEventListener("click", (ev) => {
+                ev.preventDefault();
+                this.saveImage(ev.currentTarget);
+            });
         }
     }
 
@@ -213,7 +214,7 @@ export default class GLTFModelControllerEnvironment {
                 depthWrite: false,
                 refractionRatio: 0,
                 roughness: 1,
-                side: THREE.DoubleSide,
+                side: THREE.BackSide,
             }),
         );
 
@@ -235,11 +236,12 @@ export default class GLTFModelControllerEnvironment {
             antialias: true,
             depth: false,
             powerPreference: "high-performance",
+            preserveDrawingBuffer: true,
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.shadowMap.enabled = true;
-        this.renderer.gammaFactor = 2.2;
+        // this.renderer.gammaFactor = 2.2;
         this.renderer.outputEncoding = THREE.sRGBEncoding;
         this.renderer.physicallyCorrectLights = true;
         this.renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -433,10 +435,10 @@ export default class GLTFModelControllerEnvironment {
      *
      */
     onWindowResize() {
-        this.camera.aspect = this.width / this.height;
+        this.camera.aspect = this.modelContainer.offsetWidth / this.modelContainer.offsetHeight;
         this.camera.updateProjectionMatrix();
 
-        this.renderer.setSize(this.width, this.height);
+        this.renderer.setSize(this.modelContainer.offsetWidth, this.modelContainer.offsetHeight);
     }
 
     /**
@@ -451,14 +453,71 @@ export default class GLTFModelControllerEnvironment {
     }
 
     /**
-     *
+     * will remove model from scene and clear all props
      */
     clearModel() {
+        console.log(this.scene);
         this.isPlaying = false;
         this.scene.remove(this.model);
+        this.renderer.render(this.scene, this.camera);
+        this.resetFilters();
 
         setTimeout(() => {
             this.initModel();
+
+            setTimeout(() => {
+                this.clearModel();
+            }, 5000);
         }, 3000);
+    }
+
+    /**
+     * will reset configurator filters
+     */
+    resetFilters() {
+        // reset transparency radio btns
+        this.transparentInputs.forEach((input) => {
+            if (this.config.opacity.transparent && input.value === "transparent") {
+                input.checked = true;
+                this.opacityWrapper.style.display = "";
+            } else if (!this.config.opacity.transparent && input.value === "tinted") {
+                input.checked = true;
+                this.opacityWrapper.style.display = "none";
+            }
+        });
+
+        // reset finish radio btns
+        this.finishInputs.forEach((input) => {
+            if (this.config.finish.clear && input.value === "clear") {
+                input.checked = true;
+            } else if (!this.config.finish.clear && input.value === "matte") {
+                input.checked = true;
+            }
+        });
+
+        // reset color picker
+        this.colorPicker.setColor(this.config.color.color);
+
+        // reset download btn
+        this.downloadAnchor.dataset.empty = true;
+    }
+
+    /**
+     *
+     */
+    saveImage(anchor) {
+        if (anchor == null) {
+            return;
+        }
+
+        const strDownloadMime = "image/octet-stream";
+        const strMime = "image/jpeg";
+        const imgData = this.renderer.domElement.toDataURL(strMime);
+        const link = document.createElement("a");
+        document.body.appendChild(link);
+        link.download = "model-preview.jpg";
+        link.href = imgData.replace(strMime, strDownloadMime);
+        link.click();
+        document.body.removeChild(link);
     }
 }
