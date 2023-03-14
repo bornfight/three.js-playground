@@ -119,28 +119,28 @@ export default class SofaModelController {
     }
 
     loadModel() {
-        const mat1 = {
+        this.mat1 = {
             base: this.texture.load("static/models/mat1/base.jpg"),
             ao: this.texture.load("static/models/mat1/ao.jpg"),
             norm: this.texture.load("static/models/mat1/norm.jpg"),
             rough: this.texture.load("static/models/mat1/rough.jpg"),
         };
 
-        const mat2 = {
+        this.mat2 = {
             base: this.texture.load("static/models/mat2/base.jpg"),
             ao: this.texture.load("static/models/mat2/ao.jpg"),
             norm: this.texture.load("static/models/mat2/norm.jpg"),
             rough: this.texture.load("static/models/mat2/rough.jpg"),
         };
 
-        const mat3 = {
+        this.mat3 = {
             base: this.texture.load("static/models/mat1/base.jpg"),
             ao: this.texture.load("static/models/mat1/ao.jpg"),
             norm: this.texture.load("static/models/mat1/norm.jpg"),
             rough: this.texture.load("static/models/mat1/rough.jpg"),
         };
 
-        const mat4 = {
+        this.mat4 = {
             base: this.texture.load("static/models/mat2/base.jpg"),
             ao: this.texture.load("static/models/mat2/ao.jpg"),
             norm: this.texture.load("static/models/mat2/norm.jpg"),
@@ -148,10 +148,10 @@ export default class SofaModelController {
         };
 
         let material = new THREE.MeshStandardMaterial({
-            map: mat1.base,
-            aoMap: mat1.ao,
-            normalMap: mat1.norm,
-            roughnessMap: mat1.rough,
+            map: this.mat1.base,
+            aoMap: this.mat1.ao,
+            normalMap: this.mat1.norm,
+            roughnessMap: this.mat1.rough,
             roughness: 1,
             metalness: 0,
             flatShading: false,
@@ -189,37 +189,43 @@ export default class SofaModelController {
                     object.material = material;
                 }
             });
-            console.log(mat2);
 
             this.gui.add(this.guiConf, "material", { Material1: 1, Material2: 2, Material3: 3, Material4: 4 }).onChange((value) => {
-                let mat = mat2;
-                if (value === 1) {
-                    mat = mat1;
-                } else if (value === 2) {
-                    mat = mat2;
-                } else if (value === 3) {
-                    mat = mat3;
-                } else if (value === 4) {
-                    mat = mat4;
-                }
-
-                console.log(mat);
-                material.map = mat.base;
-                material.aoMap = mat.ao;
-                material.normalMap = mat.norm;
-                material.roughnessMap = mat.rough;
-
-                model.scene.traverse((object) => {
-                    if (object.isMesh) {
-                        object.material = material;
-                        object.material.needsUpdate = true;
-                    }
-                });
+                this.transformMaterail(value, material, model.scene);
             });
 
             this.scene.add(model.scene);
             this.spotLight.updateMatrix();
         });
+    }
+
+    transformMaterail(index, material, model) {
+        let mat = null;
+
+        if (index === "2") {
+            mat = this.mat2;
+        } else if (index === "3") {
+            mat = this.mat3;
+        } else if (index === "4") {
+            mat = this.mat4;
+        } else {
+            mat = this.mat1;
+        }
+
+        material.map = mat.base;
+        material.aoMap = mat.ao;
+        material.normalMap = mat.norm;
+        material.roughnessMap = mat.rough;
+
+        material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+        material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+        material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
+        material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
+
+        material.map.repeat.set(3, 3);
+        material.aoMap.repeat.set(3, 3);
+        material.normalMap.repeat.set(3, 3);
+        material.roughnessMap.repeat.set(3, 3);
     }
 
     onWindowResize() {
