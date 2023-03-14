@@ -7,5 +7,6 @@ export const plugins = [
     "three",
     "three/examples/jsm/controls/OrbitControls",
     "three/examples/jsm/loaders/GLTFLoader",
+    "three/examples/jsm/loaders/DRACOLoader",
     "simple-color-picker",
 ];

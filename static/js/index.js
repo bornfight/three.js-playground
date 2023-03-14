@@ -17,6 +17,7 @@ import NavigationController from "./components/NavigationController";
 import GLTFModelController from "./components/GLTFModelController";
 import GLTFModelControllerShader from "./components/GLTFModelControllerShader";
 import GLTFModelControllerEnvironment from "./components/GLTFModelControllerEnvironment";
+import SofaModelController from "./components/SofaModelController";
 
 /**
  * Check if document is ready cross-browser
@@ -92,4 +93,7 @@ ready(() => {
 
     const gLTFModelControllerEnvironment = new GLTFModelControllerEnvironment();
     gLTFModelControllerEnvironment.init();
+
+    const sofaModelController = new SofaModelController();
+    sofaModelController.init();
 });
