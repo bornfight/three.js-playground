@@ -1261,7 +1261,8 @@ var SofaModelController = /*#__PURE__*/function () {
         console.log("GLTFModelController init()");
         this.width = this.modelContainer.offsetWidth;
         this.height = this.modelContainer.offsetHeight;
-        THREE.Cache.enabled = true; // gui
+        THREE.Cache.enabled = true;
+        this.texture = new THREE.TextureLoader(); // gui
 
         this.gui = new dat.GUI({
           name: "Sofa config"
@@ -1269,20 +1270,15 @@ var SofaModelController = /*#__PURE__*/function () {
 
         this.guiConf = {
           light: {
-            lightIntensity: 1
-          },
-          color: {
-            color: "#efefef"
+            lightIntensity: 10
           },
           autoRotation: {
-            autoRotate: true
-          },
-          glossy: {
-            emissiveColor: "#555555"
+            autoRotate: false
           },
           grid: {
             showGrid: true
-          }
+          },
+          material: null
         };
         this.initFBXModel();
         this.animate();
@@ -1301,14 +1297,14 @@ var SofaModelController = /*#__PURE__*/function () {
       this.scene.background = new THREE.Color(0xffffff);
       this.ambientLight = new THREE.AmbientLight(0x404040, 1);
       this.scene.add(this.ambientLight);
-      this.spotLight = new THREE.SpotLight(0xcccccc, this.guiConf.light.lightIntensity);
+      this.spotLight = new THREE.SpotLight(0xeeeeee, this.guiConf.light.lightIntensity);
       this.spotLight.position.set(5, 5, 5);
       this.spotLight.castShadow = true;
       this.spotLight.shadow.radius = 4;
       this.spotLight.shadow.bias = 0.0001;
       this.scene.add(this.spotLight); // add gui for light intensity
 
-      this.gui.add(this.guiConf.light, "lightIntensity", 1, 10, 0.1).onChange(function (value) {
+      this.gui.add(this.guiConf.light, "lightIntensity", 1, 30, 0.1).onChange(function (value) {
         _this.spotLight.intensity = value;
       }); // ground grid
 
@@ -1358,7 +1354,48 @@ var SofaModelController = /*#__PURE__*/function () {
     value: function loadModel() {
       var _this2 = this;
 
-      // get model
+      var mat1 = {
+        base: this.texture.load("static/models/mat1/base.jpg"),
+        ao: this.texture.load("static/models/mat1/ao.jpg"),
+        norm: this.texture.load("static/models/mat1/norm.jpg"),
+        rough: this.texture.load("static/models/mat1/rough.jpg")
+      };
+      var mat2 = {
+        base: this.texture.load("static/models/mat2/base.jpg"),
+        ao: this.texture.load("static/models/mat2/ao.jpg"),
+        norm: this.texture.load("static/models/mat2/norm.jpg"),
+        rough: this.texture.load("static/models/mat2/rough.jpg")
+      };
+      var mat3 = {
+        base: this.texture.load("static/models/mat1/base.jpg"),
+        ao: this.texture.load("static/models/mat1/ao.jpg"),
+        norm: this.texture.load("static/models/mat1/norm.jpg"),
+        rough: this.texture.load("static/models/mat1/rough.jpg")
+      };
+      var mat4 = {
+        base: this.texture.load("static/models/mat2/base.jpg"),
+        ao: this.texture.load("static/models/mat2/ao.jpg"),
+        norm: this.texture.load("static/models/mat2/norm.jpg"),
+        rough: this.texture.load("static/models/mat2/rough.jpg")
+      };
+      var material = new THREE.MeshStandardMaterial({
+        map: mat1.base,
+        aoMap: mat1.ao,
+        normalMap: mat1.norm,
+        roughnessMap: mat1.rough,
+        roughness: 1,
+        metalness: 0,
+        flatShading: false
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+      material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
+      material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
+      material.map.repeat.set(3, 3);
+      material.aoMap.repeat.set(3, 3);
+      material.normalMap.repeat.set(3, 3);
+      material.roughnessMap.repeat.set(3, 3); // get model
+
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
 
       var loader = new _GLTFLoader.GLTFLoader();
@@ -1366,10 +1403,6 @@ var SofaModelController = /*#__PURE__*/function () {
       dracoLoader.setDecoderPath("draco/");
       loader.setDRACOLoader(dracoLoader);
       loader.load(model, function (model) {
-        // dynamically change material
-        var material = new THREE.MeshPhysicalMaterial({
-          color: _this2.guiConf.color.color
-        });
         material.color.convertSRGBToLinear();
         model.scene.traverse(function (object) {
           if (object.isMesh) {
@@ -1378,6 +1411,38 @@ var SofaModelController = /*#__PURE__*/function () {
 
             object.material = material;
           }
+        });
+        console.log(mat2);
+
+        _this2.gui.add(_this2.guiConf, "material", {
+          Material1: 1,
+          Material2: 2,
+          Material3: 3,
+          Material4: 4
+        }).onChange(function (value) {
+          var mat = mat2;
+
+          if (value === 1) {
+            mat = mat1;
+          } else if (value === 2) {
+            mat = mat2;
+          } else if (value === 3) {
+            mat = mat3;
+          } else if (value === 4) {
+            mat = mat4;
+          }
+
+          console.log(mat);
+          material.map = mat.base;
+          material.aoMap = mat.ao;
+          material.normalMap = mat.norm;
+          material.roughnessMap = mat.rough;
+          model.scene.traverse(function (object) {
+            if (object.isMesh) {
+              object.material = material;
+              object.material.needsUpdate = true;
+            }
+          });
         });
 
         _this2.scene.add(model.scene);
