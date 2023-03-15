@@ -1408,20 +1408,11 @@ var SofaModelController = /*#__PURE__*/function () {
         material.color.convertSRGBToLinear();
         model.scene.traverse(function (object) {
           if (object.isMesh) {
-            console.log(object);
             object.castShadow = true;
+            object.receiveShadow = true;
             object.material.color.convertSRGBToLinear(); // initial material setup
 
-            if (object.name.includes("cloth")) {
-              object.material = material;
-            } else {
-              object.material = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                metalness: 0.5,
-                roughness: 0,
-                flatShading: false
-              });
-            }
+            object.material = material;
           }
         });
 
