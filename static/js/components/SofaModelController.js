@@ -134,38 +134,40 @@ export default class SofaModelController {
         };
 
         this.mat3 = {
-            base: this.texture.load("static/models/mat1/base.jpg"),
-            ao: this.texture.load("static/models/mat1/ao.jpg"),
-            norm: this.texture.load("static/models/mat1/norm.jpg"),
-            rough: this.texture.load("static/models/mat1/rough.jpg"),
+            base: this.texture.load("static/models/mat3/base.jpg"),
+            ao: this.texture.load("static/models/mat3/ao.jpg"),
+            norm: this.texture.load("static/models/mat3/norm.jpg"),
+            rough: this.texture.load("static/models/mat3/rough.jpg"),
         };
 
         this.mat4 = {
-            base: this.texture.load("static/models/mat2/base.jpg"),
-            ao: this.texture.load("static/models/mat2/ao.jpg"),
-            norm: this.texture.load("static/models/mat2/norm.jpg"),
-            rough: this.texture.load("static/models/mat2/rough.jpg"),
+            base: this.texture.load("static/models/mat4/base.jpg"),
+            ao: this.texture.load("static/models/mat4/ao.jpg"),
+            norm: this.texture.load("static/models/mat4/norm.jpg"),
+            rough: this.texture.load("static/models/mat4/rough.jpg"),
         };
 
         let material = new THREE.MeshStandardMaterial({
             map: this.mat1.base,
             aoMap: this.mat1.ao,
+            aoMapIntensity: 1,
             normalMap: this.mat1.norm,
             roughnessMap: this.mat1.rough,
-            roughness: 1,
             metalness: 0,
             flatShading: false,
         });
 
+        material.map.minFilter = THREE.NearestFilter;
+        material.map.generateMipmaps = false;
         material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
         material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
         material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
         material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
 
-        material.map.repeat.set(3, 3);
-        material.aoMap.repeat.set(3, 3);
-        material.normalMap.repeat.set(3, 3);
-        material.roughnessMap.repeat.set(3, 3);
+        material.map.repeat.set(0.15, 0.15);
+        material.aoMap.repeat.set(0.15, 0.15);
+        material.normalMap.repeat.set(0.15, 0.15);
+        material.roughnessMap.repeat.set(0.15, 0.15);
 
         // get model
         let model = this.modelContainer.getAttribute("data-model-source");
@@ -182,24 +184,33 @@ export default class SofaModelController {
 
             model.scene.traverse((object) => {
                 if (object.isMesh) {
+                    console.log(object);
                     object.castShadow = true;
                     object.material.color.convertSRGBToLinear();
 
                     // initial material setup
-                    object.material = material;
+                    if (object.name.includes("cloth")) {
+                        object.material = material;
+                    } else {
+                        object.material = new THREE.MeshStandardMaterial({
+                            color: 0xffffff,
+                            metalness: 0.5,
+                            roughness: 0,
+                            flatShading: false,
+                        });
+                    }
                 }
             });
 
             this.gui.add(this.guiConf, "material", { Material1: 1, Material2: 2, Material3: 3, Material4: 4 }).onChange((value) => {
-                this.transformMaterail(value, material, model.scene);
+                this.transformMaterail(value, material);
             });
 
             this.scene.add(model.scene);
-            this.spotLight.updateMatrix();
         });
     }
 
-    transformMaterail(index, material, model) {
+    transformMaterail(index, material) {
         let mat = null;
 
         if (index === "2") {
@@ -212,6 +223,8 @@ export default class SofaModelController {
             mat = this.mat1;
         }
 
+        mat.base.minFilter = THREE.NearestFilter;
+        mat.base.generateMipmaps = false;
         material.map = mat.base;
         material.aoMap = mat.ao;
         material.normalMap = mat.norm;
@@ -222,10 +235,10 @@ export default class SofaModelController {
         material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
         material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
 
-        material.map.repeat.set(3, 3);
-        material.aoMap.repeat.set(3, 3);
-        material.normalMap.repeat.set(3, 3);
-        material.roughnessMap.repeat.set(3, 3);
+        material.map.repeat.set(0.15, 0.15);
+        material.aoMap.repeat.set(0.15, 0.15);
+        material.normalMap.repeat.set(0.15, 0.15);
+        material.roughnessMap.repeat.set(0.15, 0.15);
     }
 
     onWindowResize() {

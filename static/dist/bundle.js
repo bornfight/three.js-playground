@@ -1367,34 +1367,36 @@ var SofaModelController = /*#__PURE__*/function () {
         rough: this.texture.load("static/models/mat2/rough.jpg")
       };
       this.mat3 = {
-        base: this.texture.load("static/models/mat1/base.jpg"),
-        ao: this.texture.load("static/models/mat1/ao.jpg"),
-        norm: this.texture.load("static/models/mat1/norm.jpg"),
-        rough: this.texture.load("static/models/mat1/rough.jpg")
+        base: this.texture.load("static/models/mat3/base.jpg"),
+        ao: this.texture.load("static/models/mat3/ao.jpg"),
+        norm: this.texture.load("static/models/mat3/norm.jpg"),
+        rough: this.texture.load("static/models/mat3/rough.jpg")
       };
       this.mat4 = {
-        base: this.texture.load("static/models/mat2/base.jpg"),
-        ao: this.texture.load("static/models/mat2/ao.jpg"),
-        norm: this.texture.load("static/models/mat2/norm.jpg"),
-        rough: this.texture.load("static/models/mat2/rough.jpg")
+        base: this.texture.load("static/models/mat4/base.jpg"),
+        ao: this.texture.load("static/models/mat4/ao.jpg"),
+        norm: this.texture.load("static/models/mat4/norm.jpg"),
+        rough: this.texture.load("static/models/mat4/rough.jpg")
       };
       var material = new THREE.MeshStandardMaterial({
         map: this.mat1.base,
         aoMap: this.mat1.ao,
+        aoMapIntensity: 1,
         normalMap: this.mat1.norm,
         roughnessMap: this.mat1.rough,
-        roughness: 1,
         metalness: 0,
         flatShading: false
       });
+      material.map.minFilter = THREE.NearestFilter;
+      material.map.generateMipmaps = false;
       material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
       material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(3, 3);
-      material.aoMap.repeat.set(3, 3);
-      material.normalMap.repeat.set(3, 3);
-      material.roughnessMap.repeat.set(3, 3); // get model
+      material.map.repeat.set(0.15, 0.15);
+      material.aoMap.repeat.set(0.15, 0.15);
+      material.normalMap.repeat.set(0.15, 0.15);
+      material.roughnessMap.repeat.set(0.15, 0.15); // get model
 
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
 
@@ -1406,10 +1408,20 @@ var SofaModelController = /*#__PURE__*/function () {
         material.color.convertSRGBToLinear();
         model.scene.traverse(function (object) {
           if (object.isMesh) {
+            console.log(object);
             object.castShadow = true;
             object.material.color.convertSRGBToLinear(); // initial material setup
 
-            object.material = material;
+            if (object.name.includes("cloth")) {
+              object.material = material;
+            } else {
+              object.material = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                metalness: 0.5,
+                roughness: 0,
+                flatShading: false
+              });
+            }
           }
         });
 
@@ -1419,17 +1431,15 @@ var SofaModelController = /*#__PURE__*/function () {
           Material3: 3,
           Material4: 4
         }).onChange(function (value) {
-          _this2.transformMaterail(value, material, model.scene);
+          _this2.transformMaterail(value, material);
         });
 
         _this2.scene.add(model.scene);
-
-        _this2.spotLight.updateMatrix();
       });
     }
   }, {
     key: "transformMaterail",
-    value: function transformMaterail(index, material, model) {
+    value: function transformMaterail(index, material) {
       var mat = null;
 
       if (index === "2") {
@@ -1442,6 +1452,8 @@ var SofaModelController = /*#__PURE__*/function () {
         mat = this.mat1;
       }
 
+      mat.base.minFilter = THREE.NearestFilter;
+      mat.base.generateMipmaps = false;
       material.map = mat.base;
       material.aoMap = mat.ao;
       material.normalMap = mat.norm;
@@ -1450,10 +1462,10 @@ var SofaModelController = /*#__PURE__*/function () {
       material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(3, 3);
-      material.aoMap.repeat.set(3, 3);
-      material.normalMap.repeat.set(3, 3);
-      material.roughnessMap.repeat.set(3, 3);
+      material.map.repeat.set(0.15, 0.15);
+      material.aoMap.repeat.set(0.15, 0.15);
+      material.normalMap.repeat.set(0.15, 0.15);
+      material.roughnessMap.repeat.set(0.15, 0.15);
     }
   }, {
     key: "onWindowResize",
