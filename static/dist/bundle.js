@@ -1227,11 +1227,15 @@ var THREE = _interopRequireWildcard(require("three"));
 
 var dat = _interopRequireWildcard(require("dat.gui"));
 
+var _gsap = _interopRequireDefault(require("gsap"));
+
 var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
 
 var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
 
 var _DRACOLoader = require("three/examples/jsm/loaders/DRACOLoader");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
 
@@ -1278,7 +1282,7 @@ var SofaModelController = /*#__PURE__*/function () {
           grid: {
             showGrid: true
           },
-          material: null
+          material: "1"
         };
         this.initFBXModel();
         this.animate();
@@ -1356,24 +1360,28 @@ var SofaModelController = /*#__PURE__*/function () {
 
       this.mat1 = {
         base: this.texture.load("static/models/mat1/base.jpg"),
+        height: this.texture.load("static/models/mat1/height.png"),
         ao: this.texture.load("static/models/mat1/ao.jpg"),
         norm: this.texture.load("static/models/mat1/norm.jpg"),
         rough: this.texture.load("static/models/mat1/rough.jpg")
       };
       this.mat2 = {
         base: this.texture.load("static/models/mat2/base.jpg"),
+        height: this.texture.load("static/models/mat2/height.png"),
         ao: this.texture.load("static/models/mat2/ao.jpg"),
         norm: this.texture.load("static/models/mat2/norm.jpg"),
         rough: this.texture.load("static/models/mat2/rough.jpg")
       };
       this.mat3 = {
         base: this.texture.load("static/models/mat3/base.jpg"),
+        height: this.texture.load("static/models/mat3/height.png"),
         ao: this.texture.load("static/models/mat3/ao.jpg"),
         norm: this.texture.load("static/models/mat3/norm.jpg"),
         rough: this.texture.load("static/models/mat3/rough.jpg")
       };
       this.mat4 = {
         base: this.texture.load("static/models/mat4/base.jpg"),
+        height: this.texture.load("static/models/mat4/height.png"),
         ao: this.texture.load("static/models/mat4/ao.jpg"),
         norm: this.texture.load("static/models/mat4/norm.jpg"),
         rough: this.texture.load("static/models/mat4/rough.jpg")
@@ -1383,20 +1391,40 @@ var SofaModelController = /*#__PURE__*/function () {
         aoMap: this.mat1.ao,
         aoMapIntensity: 1,
         normalMap: this.mat1.norm,
+        displacementMap: this.mat1.height,
+        displacementScale: 0,
         roughnessMap: this.mat1.rough,
         metalness: 0,
         flatShading: false
       });
-      material.map.minFilter = THREE.NearestFilter;
-      material.map.generateMipmaps = false;
+      var sphereMaterial = new THREE.MeshStandardMaterial({
+        map: this.mat1.base,
+        aoMap: this.mat1.ao,
+        aoMapIntensity: 1,
+        normalMap: this.mat1.norm,
+        displacementMap: this.mat1.height,
+        displacementScale: 0.025,
+        roughnessMap: this.mat1.rough,
+        metalness: 0,
+        flatShading: false
+      });
+      material.map.minFilter = sphereMaterial.map.minFilter = THREE.NearestFilter;
+      material.map.generateMipmaps = sphereMaterial.map.generateMipmaps = false;
       material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
       material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
       material.map.repeat.set(0.15, 0.15);
+      material.displacementMap.repeat.set(0.15, 0.15);
       material.aoMap.repeat.set(0.15, 0.15);
       material.normalMap.repeat.set(0.15, 0.15);
-      material.roughnessMap.repeat.set(0.15, 0.15); // get model
+      material.roughnessMap.repeat.set(0.15, 0.15);
+      sphereMaterial.map.repeat.set(4, 4);
+      sphereMaterial.displacementMap.repeat.set(4, 4);
+      sphereMaterial.aoMap.repeat.set(4, 4);
+      sphereMaterial.normalMap.repeat.set(4, 4);
+      sphereMaterial.roughnessMap.repeat.set(4, 4); // get model
 
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
 
@@ -1405,6 +1433,7 @@ var SofaModelController = /*#__PURE__*/function () {
       dracoLoader.setDecoderPath("draco/");
       loader.setDRACOLoader(dracoLoader);
       loader.load(model, function (model) {
+        model.scene.position.x = -4;
         material.color.convertSRGBToLinear();
         model.scene.traverse(function (object) {
           if (object.isMesh) {
@@ -1422,15 +1451,33 @@ var SofaModelController = /*#__PURE__*/function () {
           Material3: 3,
           Material4: 4
         }).onChange(function (value) {
-          _this2.transformMaterail(value, material);
+          _this2.transformMaterial(value, material, sphereMaterial);
         });
+
+        _this2.sphere(sphereMaterial);
 
         _this2.scene.add(model.scene);
       });
     }
   }, {
-    key: "transformMaterail",
-    value: function transformMaterail(index, material) {
+    key: "sphere",
+    value: function sphere(material) {
+      var geometry = new THREE.SphereGeometry(1.5, 400, 400);
+      var sphere = new THREE.Mesh(geometry, material); // sphere.material.wireframe = true;
+
+      sphere.position.set(4, 2, 0);
+      this.scene.add(sphere);
+
+      _gsap.default.to(sphere.rotation, {
+        duration: 20,
+        ease: "none",
+        y: Math.PI * 2,
+        repeat: -1
+      });
+    }
+  }, {
+    key: "transformMaterial",
+    value: function transformMaterial(index, material, sphereMaterial) {
       var mat = null;
 
       if (index === "2") {
@@ -1445,18 +1492,25 @@ var SofaModelController = /*#__PURE__*/function () {
 
       mat.base.minFilter = THREE.NearestFilter;
       mat.base.generateMipmaps = false;
-      material.map = mat.base;
-      material.aoMap = mat.ao;
-      material.normalMap = mat.norm;
-      material.roughnessMap = mat.rough;
-      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-      material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
-      material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
-      material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(0.15, 0.15);
-      material.aoMap.repeat.set(0.15, 0.15);
-      material.normalMap.repeat.set(0.15, 0.15);
-      material.roughnessMap.repeat.set(0.15, 0.15);
+      material.map = sphereMaterial.map = mat.base;
+      material.aoMap = sphereMaterial.aoMap = mat.ao;
+      material.displacementMap = sphereMaterial.displacementMap = mat.height;
+      material.normalMap = sphereMaterial.normalMap = mat.norm;
+      material.roughnessMap = sphereMaterial.roughnessMap = mat.rough;
+      material.map.wrapS = material.map.wrapT = sphereMaterial.map.wrapS = sphereMaterial.map.wrapT = THREE.RepeatWrapping;
+      material.aoMap.wrapS = material.aoMap.wrapT = sphereMaterial.aoMap.wrapS = sphereMaterial.aoMap.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = sphereMaterial.displacementMap.wrapS = sphereMaterial.displacementMap.wrapT = THREE.RepeatWrapping;
+      material.normalMap.wrapS = material.normalMap.wrapT = sphereMaterial.normalMap.wrapS = sphereMaterial.normalMap.wrapT = THREE.RepeatWrapping;
+      material.roughnessMap.wrapS = material.roughnessMap.wrapT = sphereMaterial.roughnessMap.wrapS = sphereMaterial.roughnessMap.wrapT = THREE.RepeatWrapping;
+      material.map.repeat.set(1, 1);
+      material.aoMap.repeat.set(1, 1);
+      material.displacementMap.repeat.set(1, 1);
+      material.normalMap.repeat.set(1, 1);
+      material.roughnessMap.repeat.set(1, 1); // sphereMaterial.map.repeat.set(4, 4);
+      // sphereMaterial.aoMap.repeat.set(4, 4);
+      // sphereMaterial.displacementMap.repeat.set(4, 4);
+      // sphereMaterial.normalMap.repeat.set(4, 4);
+      // sphereMaterial.roughnessMap.repeat.set(4, 4);
     }
   }, {
     key: "onWindowResize",
@@ -1482,7 +1536,7 @@ var SofaModelController = /*#__PURE__*/function () {
 
 exports.default = SofaModelController;
 
-},{"dat.gui":"dat.gui","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
+},{"dat.gui":"dat.gui","gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
