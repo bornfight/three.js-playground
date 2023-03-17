@@ -1341,6 +1341,9 @@ var SofaModelController = /*#__PURE__*/function () {
       this.controls.autoRotateSpeed = 1;
       this.controls.enableDamping = true;
       this.controls.minDistance = 4;
+      this.controls.maxDistance = 30;
+      this.controls.maxPolarAngle = Math.PI / 2;
+      this.controls.minPolarAngle = 0;
       this.controls.update();
       this.gui.add(this.guiConf.autoRotation, "autoRotate").onChange(function (value) {
         _this.controls.autoRotate = value !== false;
