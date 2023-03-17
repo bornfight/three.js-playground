@@ -1235,6 +1235,8 @@ var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
 
 var _DRACOLoader = require("three/examples/jsm/loaders/DRACOLoader");
 
+var _RoomEnvironment = require("three/examples/jsm/environments/RoomEnvironment");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
@@ -1273,16 +1275,14 @@ var SofaModelController = /*#__PURE__*/function () {
         }); // gui config
 
         this.guiConf = {
-          light: {
-            lightIntensity: 10
-          },
           autoRotation: {
             autoRotate: false
           },
           grid: {
             showGrid: true
           },
-          material: "1"
+          sofaMaterial: "1",
+          sphereMaterial: "1"
         };
         this.initFBXModel();
         this.animate();
@@ -1298,19 +1298,7 @@ var SofaModelController = /*#__PURE__*/function () {
       this.camera.position.set(17, 10, 17); // scene
 
       this.scene = new THREE.Scene();
-      this.scene.background = new THREE.Color(0xffffff);
-      this.ambientLight = new THREE.AmbientLight(0x404040, 1);
-      this.scene.add(this.ambientLight);
-      this.spotLight = new THREE.SpotLight(0xeeeeee, this.guiConf.light.lightIntensity);
-      this.spotLight.position.set(5, 5, 5);
-      this.spotLight.castShadow = true;
-      this.spotLight.shadow.radius = 4;
-      this.spotLight.shadow.bias = 0.0001;
-      this.scene.add(this.spotLight); // add gui for light intensity
-
-      this.gui.add(this.guiConf.light, "lightIntensity", 1, 30, 0.1).onChange(function (value) {
-        _this.spotLight.intensity = value;
-      }); // ground grid
+      this.scene.background = new THREE.Color(0xbbbbbb); // ground grid
 
       var grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
       grid.material.opacity = 0.1;
@@ -1337,14 +1325,23 @@ var SofaModelController = /*#__PURE__*/function () {
       this.renderer.outputEncoding = THREE.sRGBEncoding;
       this.renderer.physicallyCorrectLights = true;
       this.renderer.shadowMap.type = THREE.PCFShadowMap;
-      this.modelContainer.appendChild(this.renderer.domElement); // loader
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1;
+      this.modelContainer.appendChild(this.renderer.domElement);
+      var environment = new _RoomEnvironment.RoomEnvironment();
+      this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      this.scene.environment = this.pmremGenerator.fromScene(environment).texture; // loader
 
-      this.loadModel(); // orbit controls
+      this.loadModel();
+      this.loadSphere(); // orbit controls
 
       this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
       this.controls.target.set(0, 1, 0);
       this.controls.autoRotate = this.guiConf.autoRotation.autoRotate;
       this.controls.autoRotateSpeed = 1;
+      this.controls.enableDamping = true;
+      this.controls.minDistance = 4;
+      this.controls.update();
       this.gui.add(this.guiConf.autoRotation, "autoRotate").onChange(function (value) {
         _this.controls.autoRotate = value !== false;
       }); // handle resize
@@ -1358,73 +1355,59 @@ var SofaModelController = /*#__PURE__*/function () {
     value: function loadModel() {
       var _this2 = this;
 
-      this.mat1 = {
-        base: this.texture.load("static/models/mat1/base.jpg"),
-        height: this.texture.load("static/models/mat1/height.png"),
-        ao: this.texture.load("static/models/mat1/ao.jpg"),
-        norm: this.texture.load("static/models/mat1/norm.jpg"),
-        rough: this.texture.load("static/models/mat1/rough.jpg")
+      var materials = {
+        mat1: {
+          base: this.texture.load("static/models/mat1/base.jpg"),
+          height: this.texture.load("static/models/mat1/height.png"),
+          ao: this.texture.load("static/models/mat1/ao.jpg"),
+          norm: this.texture.load("static/models/mat1/norm.jpg"),
+          rough: this.texture.load("static/models/mat1/rough.jpg")
+        },
+        mat2: {
+          base: this.texture.load("static/models/mat2/base.jpg"),
+          height: this.texture.load("static/models/mat2/height.png"),
+          ao: this.texture.load("static/models/mat2/ao.jpg"),
+          norm: this.texture.load("static/models/mat2/norm.jpg"),
+          rough: this.texture.load("static/models/mat2/rough.jpg")
+        },
+        mat3: {
+          base: this.texture.load("static/models/mat3/base.jpg"),
+          height: this.texture.load("static/models/mat3/height.png"),
+          ao: this.texture.load("static/models/mat3/ao.jpg"),
+          norm: this.texture.load("static/models/mat3/norm.jpg"),
+          rough: this.texture.load("static/models/mat3/rough.jpg")
+        },
+        mat4: {
+          base: this.texture.load("static/models/mat4/base.jpg"),
+          height: this.texture.load("static/models/mat4/height.png"),
+          ao: this.texture.load("static/models/mat4/ao.jpg"),
+          norm: this.texture.load("static/models/mat4/norm.jpg"),
+          rough: this.texture.load("static/models/mat4/rough.jpg")
+        }
       };
-      this.mat2 = {
-        base: this.texture.load("static/models/mat2/base.jpg"),
-        height: this.texture.load("static/models/mat2/height.png"),
-        ao: this.texture.load("static/models/mat2/ao.jpg"),
-        norm: this.texture.load("static/models/mat2/norm.jpg"),
-        rough: this.texture.load("static/models/mat2/rough.jpg")
-      };
-      this.mat3 = {
-        base: this.texture.load("static/models/mat3/base.jpg"),
-        height: this.texture.load("static/models/mat3/height.png"),
-        ao: this.texture.load("static/models/mat3/ao.jpg"),
-        norm: this.texture.load("static/models/mat3/norm.jpg"),
-        rough: this.texture.load("static/models/mat3/rough.jpg")
-      };
-      this.mat4 = {
-        base: this.texture.load("static/models/mat4/base.jpg"),
-        height: this.texture.load("static/models/mat4/height.png"),
-        ao: this.texture.load("static/models/mat4/ao.jpg"),
-        norm: this.texture.load("static/models/mat4/norm.jpg"),
-        rough: this.texture.load("static/models/mat4/rough.jpg")
-      };
-      var material = new THREE.MeshStandardMaterial({
-        map: this.mat1.base,
-        aoMap: this.mat1.ao,
+      var material = new THREE.MeshPhysicalMaterial({
+        map: materials.mat1.base,
+        aoMap: materials.mat1.ao,
         aoMapIntensity: 1,
-        normalMap: this.mat1.norm,
-        displacementMap: this.mat1.height,
+        normalMap: materials.mat1.norm,
+        displacementMap: materials.mat1.height,
         displacementScale: 0,
-        roughnessMap: this.mat1.rough,
+        roughnessMap: materials.mat1.rough,
         metalness: 0,
         flatShading: false
       });
-      var sphereMaterial = new THREE.MeshStandardMaterial({
-        map: this.mat1.base,
-        aoMap: this.mat1.ao,
-        aoMapIntensity: 1,
-        normalMap: this.mat1.norm,
-        displacementMap: this.mat1.height,
-        displacementScale: 0.025,
-        roughnessMap: this.mat1.rough,
-        metalness: 0,
-        flatShading: false
-      });
-      material.map.minFilter = sphereMaterial.map.minFilter = THREE.NearestFilter;
-      material.map.generateMipmaps = sphereMaterial.map.generateMipmaps = false;
+      material.map.minFilter = THREE.NearestFilter;
+      material.map.generateMipmaps = false;
       material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
       material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
       material.map.repeat.set(0.15, 0.15);
-      material.displacementMap.repeat.set(0.15, 0.15);
       material.aoMap.repeat.set(0.15, 0.15);
+      material.displacementMap.repeat.set(0.15, 0.15);
       material.normalMap.repeat.set(0.15, 0.15);
-      material.roughnessMap.repeat.set(0.15, 0.15);
-      sphereMaterial.map.repeat.set(4, 4);
-      sphereMaterial.displacementMap.repeat.set(4, 4);
-      sphereMaterial.aoMap.repeat.set(4, 4);
-      sphereMaterial.normalMap.repeat.set(4, 4);
-      sphereMaterial.roughnessMap.repeat.set(4, 4); // get model
+      material.roughnessMap.repeat.set(0.15, 0.15); // get model
 
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
 
@@ -1445,26 +1428,91 @@ var SofaModelController = /*#__PURE__*/function () {
           }
         });
 
-        _this2.gui.add(_this2.guiConf, "material", {
+        _this2.gui.add(_this2.guiConf, "sofaMaterial", {
           Material1: 1,
           Material2: 2,
           Material3: 3,
           Material4: 4
         }).onChange(function (value) {
-          _this2.transformMaterial(value, material, sphereMaterial);
+          _this2.transformMaterial(value, material, materials, 0.15);
         });
-
-        _this2.sphere(sphereMaterial);
 
         _this2.scene.add(model.scene);
       });
     }
   }, {
+    key: "loadSphere",
+    value: function loadSphere() {
+      var _this3 = this;
+
+      var materials = {
+        mat1: {
+          base: this.texture.load("static/models/mat1/base.jpg"),
+          height: this.texture.load("static/models/mat1/height.png"),
+          ao: this.texture.load("static/models/mat1/ao.jpg"),
+          norm: this.texture.load("static/models/mat1/norm.jpg"),
+          rough: this.texture.load("static/models/mat1/rough.jpg")
+        },
+        mat2: {
+          base: this.texture.load("static/models/mat2/base.jpg"),
+          height: this.texture.load("static/models/mat2/height.png"),
+          ao: this.texture.load("static/models/mat2/ao.jpg"),
+          norm: this.texture.load("static/models/mat2/norm.jpg"),
+          rough: this.texture.load("static/models/mat2/rough.jpg")
+        },
+        mat3: {
+          base: this.texture.load("static/models/mat3/base.jpg"),
+          height: this.texture.load("static/models/mat3/height.png"),
+          ao: this.texture.load("static/models/mat3/ao.jpg"),
+          norm: this.texture.load("static/models/mat3/norm.jpg"),
+          rough: this.texture.load("static/models/mat3/rough.jpg")
+        },
+        mat4: {
+          base: this.texture.load("static/models/mat4/base.jpg"),
+          height: this.texture.load("static/models/mat4/height.png"),
+          ao: this.texture.load("static/models/mat4/ao.jpg"),
+          norm: this.texture.load("static/models/mat4/norm.jpg"),
+          rough: this.texture.load("static/models/mat4/rough.jpg")
+        }
+      };
+      var material = new THREE.MeshPhysicalMaterial({
+        map: materials.mat1.base,
+        aoMap: materials.mat1.ao,
+        aoMapIntensity: 1,
+        normalMap: materials.mat1.norm,
+        displacementMap: materials.mat1.height,
+        displacementScale: 0.025,
+        roughnessMap: materials.mat1.rough,
+        metalness: 0,
+        flatShading: false
+      });
+      material.map.minFilter = THREE.NearestFilter;
+      material.map.generateMipmaps = false;
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
+      material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
+      material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
+      material.map.repeat.set(4, 4);
+      material.aoMap.repeat.set(4, 4);
+      material.displacementMap.repeat.set(4, 4);
+      material.normalMap.repeat.set(4, 4);
+      material.roughnessMap.repeat.set(4, 4);
+      this.gui.add(this.guiConf, "sphereMaterial", {
+        Material1: 1,
+        Material2: 2,
+        Material3: 3,
+        Material4: 4
+      }).onChange(function (value) {
+        _this3.transformMaterial(value, material, materials, 4);
+      });
+      this.sphere(material);
+    }
+  }, {
     key: "sphere",
     value: function sphere(material) {
       var geometry = new THREE.SphereGeometry(1.5, 400, 400);
-      var sphere = new THREE.Mesh(geometry, material); // sphere.material.wireframe = true;
-
+      var sphere = new THREE.Mesh(geometry, material);
       sphere.position.set(4, 2, 0);
       this.scene.add(sphere);
 
@@ -1477,40 +1525,35 @@ var SofaModelController = /*#__PURE__*/function () {
     }
   }, {
     key: "transformMaterial",
-    value: function transformMaterial(index, material, sphereMaterial) {
+    value: function transformMaterial(index, material, materials, scale) {
       var mat = null;
 
       if (index === "2") {
-        mat = this.mat2;
+        mat = materials.mat2;
       } else if (index === "3") {
-        mat = this.mat3;
+        mat = materials.mat3;
       } else if (index === "4") {
-        mat = this.mat4;
+        mat = materials.mat4;
       } else {
-        mat = this.mat1;
+        mat = materials.mat1;
       }
 
       mat.base.minFilter = THREE.NearestFilter;
       mat.base.generateMipmaps = false;
-      material.map = sphereMaterial.map = mat.base;
-      material.aoMap = sphereMaterial.aoMap = mat.ao;
-      material.displacementMap = sphereMaterial.displacementMap = mat.height;
-      material.normalMap = sphereMaterial.normalMap = mat.norm;
-      material.roughnessMap = sphereMaterial.roughnessMap = mat.rough;
-      material.map.wrapS = material.map.wrapT = sphereMaterial.map.wrapS = sphereMaterial.map.wrapT = THREE.RepeatWrapping;
-      material.aoMap.wrapS = material.aoMap.wrapT = sphereMaterial.aoMap.wrapS = sphereMaterial.aoMap.wrapT = THREE.RepeatWrapping;
-      material.displacementMap.wrapS = material.displacementMap.wrapT = sphereMaterial.displacementMap.wrapS = sphereMaterial.displacementMap.wrapT = THREE.RepeatWrapping;
-      material.normalMap.wrapS = material.normalMap.wrapT = sphereMaterial.normalMap.wrapS = sphereMaterial.normalMap.wrapT = THREE.RepeatWrapping;
-      material.roughnessMap.wrapS = material.roughnessMap.wrapT = sphereMaterial.roughnessMap.wrapS = sphereMaterial.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(1, 1);
-      material.aoMap.repeat.set(1, 1);
-      material.displacementMap.repeat.set(1, 1);
-      material.normalMap.repeat.set(1, 1);
-      material.roughnessMap.repeat.set(1, 1); // sphereMaterial.map.repeat.set(4, 4);
-      // sphereMaterial.aoMap.repeat.set(4, 4);
-      // sphereMaterial.displacementMap.repeat.set(4, 4);
-      // sphereMaterial.normalMap.repeat.set(4, 4);
-      // sphereMaterial.roughnessMap.repeat.set(4, 4);
+      material.map = mat.base;
+      material.aoMap = mat.ao;
+      material.normalMap = mat.norm;
+      material.roughnessMap = mat.rough;
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
+      material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
+      material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
+      material.map.repeat.set(scale, scale);
+      material.aoMap.repeat.set(scale, scale);
+      material.displacementMap.repeat.set(scale, scale);
+      material.normalMap.repeat.set(scale, scale);
+      material.roughnessMap.repeat.set(scale, scale);
     }
   }, {
     key: "onWindowResize",
@@ -1521,10 +1564,10 @@ var SofaModelController = /*#__PURE__*/function () {
   }, {
     key: "animate",
     value: function animate() {
-      var _this3 = this;
+      var _this4 = this;
 
       requestAnimationFrame(function () {
-        return _this3.animate();
+        return _this4.animate();
       });
       this.renderer.render(this.scene, this.camera);
       this.controls.update();
@@ -1536,7 +1579,7 @@ var SofaModelController = /*#__PURE__*/function () {
 
 exports.default = SofaModelController;
 
-},{"dat.gui":"dat.gui","gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
+},{"dat.gui":"dat.gui","gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/environments/RoomEnvironment":"three/examples/jsm/environments/RoomEnvironment","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

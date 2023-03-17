@@ -9,4 +9,5 @@ export const plugins = [
     "three/examples/jsm/loaders/GLTFLoader",
     "three/examples/jsm/loaders/DRACOLoader",
     "simple-color-picker",
+    "three/examples/jsm/environments/RoomEnvironment",
 ];
