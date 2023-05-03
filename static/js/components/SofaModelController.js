@@ -6,6 +6,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment";
+import { log } from "three";
 
 export default class SofaModelController {
     constructor() {
@@ -146,6 +147,23 @@ export default class SofaModelController {
                 norm: this.texture.load("static/models/mat4/norm.jpg"),
                 rough: this.texture.load("static/models/mat4/rough.jpg"),
             },
+            lion: {
+                base: this.texture.load("static/models/matLion/base.jpg", (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                }),
+                height: this.texture.load("static/models/matLion/height.jpg", (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                }),
+                ao: this.texture.load("static/models/matLion/ao.jpg", (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                }),
+                norm: this.texture.load("static/models/matLion/norm.jpg", (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                }),
+                rough: this.texture.load("static/models/matLion/rough.jpg", (tex) => {
+                    tex.encoding = THREE.sRGBEncoding;
+                }),
+            },
         };
 
         let material = new THREE.MeshPhysicalMaterial({
@@ -199,9 +217,17 @@ export default class SofaModelController {
                 }
             });
 
-            this.gui.add(this.guiConf, "sofaMaterial", { Material1: 1, Material2: 2, Material3: 3, Material4: 4 }).onChange((value) => {
-                this.transformMaterial(value, material, materials, 0.15);
-            });
+            this.gui
+                .add(this.guiConf, "sofaMaterial", {
+                    Material1: 1,
+                    Material2: 2,
+                    Material3: 3,
+                    Material4: 4,
+                    Material5: 5,
+                })
+                .onChange((value) => {
+                    this.transformMaterial(value, material, materials, 0.15);
+                });
 
             this.scene.add(model.scene);
         });
@@ -237,6 +263,13 @@ export default class SofaModelController {
                 norm: this.texture.load("static/models/mat4/norm.jpg"),
                 rough: this.texture.load("static/models/mat4/rough.jpg"),
             },
+            lion: {
+                base: this.texture.load("static/models/matLion/base.jpg"),
+                height: this.texture.load("static/models/matLion/height.jpg"),
+                ao: this.texture.load("static/models/matLion/ao.jpg"),
+                norm: this.texture.load("static/models/matLion/norm.jpg"),
+                rough: this.texture.load("static/models/matLion/rough.jpg"),
+            },
         };
 
         let material = new THREE.MeshPhysicalMaterial({
@@ -265,9 +298,17 @@ export default class SofaModelController {
         material.normalMap.repeat.set(4, 4);
         material.roughnessMap.repeat.set(4, 4);
 
-        this.gui.add(this.guiConf, "sphereMaterial", { Material1: 1, Material2: 2, Material3: 3, Material4: 4 }).onChange((value) => {
-            this.transformMaterial(value, material, materials, 4);
-        });
+        this.gui
+            .add(this.guiConf, "sphereMaterial", {
+                Material1: 1,
+                Material2: 2,
+                Material3: 3,
+                Material4: 4,
+                Material5: 5,
+            })
+            .onChange((value) => {
+                this.transformMaterial(value, material, materials, 4);
+            });
 
         this.sphere(material);
     }
@@ -295,6 +336,8 @@ export default class SofaModelController {
             mat = materials.mat3;
         } else if (index === "4") {
             mat = materials.mat4;
+        } else if (index === "5") {
+            mat = materials.lion;
         } else {
             mat = materials.mat1;
         }

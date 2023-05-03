@@ -1386,6 +1386,23 @@ var SofaModelController = /*#__PURE__*/function () {
           ao: this.texture.load("static/models/mat4/ao.jpg"),
           norm: this.texture.load("static/models/mat4/norm.jpg"),
           rough: this.texture.load("static/models/mat4/rough.jpg")
+        },
+        lion: {
+          base: this.texture.load("static/models/matLion/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/matLion/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/matLion/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/matLion/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/matLion/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         }
       };
       var material = new THREE.MeshPhysicalMaterial({
@@ -1435,7 +1452,8 @@ var SofaModelController = /*#__PURE__*/function () {
           Material1: 1,
           Material2: 2,
           Material3: 3,
-          Material4: 4
+          Material4: 4,
+          Material5: 5
         }).onChange(function (value) {
           _this2.transformMaterial(value, material, materials, 0.15);
         });
@@ -1476,6 +1494,13 @@ var SofaModelController = /*#__PURE__*/function () {
           ao: this.texture.load("static/models/mat4/ao.jpg"),
           norm: this.texture.load("static/models/mat4/norm.jpg"),
           rough: this.texture.load("static/models/mat4/rough.jpg")
+        },
+        lion: {
+          base: this.texture.load("static/models/matLion/base.jpg"),
+          height: this.texture.load("static/models/matLion/height.jpg"),
+          ao: this.texture.load("static/models/matLion/ao.jpg"),
+          norm: this.texture.load("static/models/matLion/norm.jpg"),
+          rough: this.texture.load("static/models/matLion/rough.jpg")
         }
       };
       var material = new THREE.MeshPhysicalMaterial({
@@ -1505,7 +1530,8 @@ var SofaModelController = /*#__PURE__*/function () {
         Material1: 1,
         Material2: 2,
         Material3: 3,
-        Material4: 4
+        Material4: 4,
+        Material5: 5
       }).onChange(function (value) {
         _this3.transformMaterial(value, material, materials, 4);
       });
@@ -1537,6 +1563,8 @@ var SofaModelController = /*#__PURE__*/function () {
         mat = materials.mat3;
       } else if (index === "4") {
         mat = materials.mat4;
+      } else if (index === "5") {
+        mat = materials.lion;
       } else {
         mat = materials.mat1;
       }
