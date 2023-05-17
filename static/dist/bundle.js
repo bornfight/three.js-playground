@@ -1360,34 +1360,40 @@ var SofaModelController = /*#__PURE__*/function () {
 
       var materials = {
         mat1: {
-          base: this.texture.load("static/models/mat1/base.jpg"),
-          height: this.texture.load("static/models/mat1/height.png"),
-          ao: this.texture.load("static/models/mat1/ao.jpg"),
-          norm: this.texture.load("static/models/mat1/norm.jpg"),
-          rough: this.texture.load("static/models/mat1/rough.jpg")
+          base: this.texture.load("static/models/mat1/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/mat1/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/mat1/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/mat1/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/mat1/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         },
         mat2: {
-          base: this.texture.load("static/models/mat2/base.jpg"),
-          height: this.texture.load("static/models/mat2/height.png"),
-          ao: this.texture.load("static/models/mat2/ao.jpg"),
-          norm: this.texture.load("static/models/mat2/norm.jpg"),
-          rough: this.texture.load("static/models/mat2/rough.jpg")
+          base: this.texture.load("static/models/mat2/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/mat2/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/mat2/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/mat2/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/mat2/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         },
         mat3: {
-          base: this.texture.load("static/models/mat3/base.jpg"),
-          height: this.texture.load("static/models/mat3/height.png"),
-          ao: this.texture.load("static/models/mat3/ao.jpg"),
-          norm: this.texture.load("static/models/mat3/norm.jpg"),
-          rough: this.texture.load("static/models/mat3/rough.jpg")
-        },
-        mat4: {
-          base: this.texture.load("static/models/mat4/base.jpg"),
-          height: this.texture.load("static/models/mat4/height.png"),
-          ao: this.texture.load("static/models/mat4/ao.jpg"),
-          norm: this.texture.load("static/models/mat4/norm.jpg"),
-          rough: this.texture.load("static/models/mat4/rough.jpg")
-        },
-        lion: {
           base: this.texture.load("static/models/matLion/base.jpg", function (tex) {
             tex.encoding = THREE.sRGBEncoding;
           }),
@@ -1414,6 +1420,7 @@ var SofaModelController = /*#__PURE__*/function () {
         displacementScale: 0,
         roughnessMap: materials.mat1.rough,
         metalness: 0,
+        clearcoat: 0,
         flatShading: false
       });
       material.map.minFilter = THREE.NearestFilter;
@@ -1423,11 +1430,11 @@ var SofaModelController = /*#__PURE__*/function () {
       material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(0.15, 0.15);
-      material.aoMap.repeat.set(0.15, 0.15);
-      material.displacementMap.repeat.set(0.15, 0.15);
-      material.normalMap.repeat.set(0.15, 0.15);
-      material.roughnessMap.repeat.set(0.15, 0.15); // get model
+      material.map.repeat.set(0.1, 0.1);
+      material.aoMap.repeat.set(0.1, 0.1);
+      material.displacementMap.repeat.set(0.1, 0.1);
+      material.normalMap.repeat.set(0.1, 0.1);
+      material.roughnessMap.repeat.set(0.1, 0.1); // get model
 
       var model = this.modelContainer.getAttribute("data-model-source"); // loader
 
@@ -1451,11 +1458,9 @@ var SofaModelController = /*#__PURE__*/function () {
         _this2.gui.add(_this2.guiConf, "sofaMaterial", {
           Material1: 1,
           Material2: 2,
-          Material3: 3,
-          Material4: 4,
-          Material5: 5
+          Material3: 3
         }).onChange(function (value) {
-          _this2.transformMaterial(value, material, materials, 0.15);
+          _this2.transformMaterial(value, material, materials, 0.1);
         });
 
         _this2.scene.add(model.scene);
@@ -1468,39 +1473,55 @@ var SofaModelController = /*#__PURE__*/function () {
 
       var materials = {
         mat1: {
-          base: this.texture.load("static/models/mat1/base.jpg"),
-          height: this.texture.load("static/models/mat1/height.png"),
-          ao: this.texture.load("static/models/mat1/ao.jpg"),
-          norm: this.texture.load("static/models/mat1/norm.jpg"),
-          rough: this.texture.load("static/models/mat1/rough.jpg")
+          base: this.texture.load("static/models/mat1/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/mat1/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/mat1/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/mat1/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/mat1/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         },
         mat2: {
-          base: this.texture.load("static/models/mat2/base.jpg"),
-          height: this.texture.load("static/models/mat2/height.png"),
-          ao: this.texture.load("static/models/mat2/ao.jpg"),
-          norm: this.texture.load("static/models/mat2/norm.jpg"),
-          rough: this.texture.load("static/models/mat2/rough.jpg")
+          base: this.texture.load("static/models/mat2/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/mat2/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/mat2/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/mat2/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/mat2/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         },
         mat3: {
-          base: this.texture.load("static/models/mat3/base.jpg"),
-          height: this.texture.load("static/models/mat3/height.png"),
-          ao: this.texture.load("static/models/mat3/ao.jpg"),
-          norm: this.texture.load("static/models/mat3/norm.jpg"),
-          rough: this.texture.load("static/models/mat3/rough.jpg")
-        },
-        mat4: {
-          base: this.texture.load("static/models/mat4/base.jpg"),
-          height: this.texture.load("static/models/mat4/height.png"),
-          ao: this.texture.load("static/models/mat4/ao.jpg"),
-          norm: this.texture.load("static/models/mat4/norm.jpg"),
-          rough: this.texture.load("static/models/mat4/rough.jpg")
-        },
-        lion: {
-          base: this.texture.load("static/models/matLion/base.jpg"),
-          height: this.texture.load("static/models/matLion/height.jpg"),
-          ao: this.texture.load("static/models/matLion/ao.jpg"),
-          norm: this.texture.load("static/models/matLion/norm.jpg"),
-          rough: this.texture.load("static/models/matLion/rough.jpg")
+          base: this.texture.load("static/models/matLion/base.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          height: this.texture.load("static/models/matLion/height.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          ao: this.texture.load("static/models/matLion/ao.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          norm: this.texture.load("static/models/matLion/norm.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          }),
+          rough: this.texture.load("static/models/matLion/rough.jpg", function (tex) {
+            tex.encoding = THREE.sRGBEncoding;
+          })
         }
       };
       var material = new THREE.MeshPhysicalMaterial({
@@ -1509,9 +1530,10 @@ var SofaModelController = /*#__PURE__*/function () {
         aoMapIntensity: 1,
         normalMap: materials.mat1.norm,
         displacementMap: materials.mat1.height,
-        displacementScale: 0.025,
+        displacementScale: 0.03,
         roughnessMap: materials.mat1.rough,
         metalness: 0,
+        clearcoat: 0,
         flatShading: false
       });
       material.map.minFilter = THREE.NearestFilter;
@@ -1521,21 +1543,21 @@ var SofaModelController = /*#__PURE__*/function () {
       material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
       material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping;
       material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
-      material.map.repeat.set(4, 4);
-      material.aoMap.repeat.set(4, 4);
-      material.displacementMap.repeat.set(4, 4);
-      material.normalMap.repeat.set(4, 4);
-      material.roughnessMap.repeat.set(4, 4);
+      material.map.repeat.set(3, 3);
+      material.aoMap.repeat.set(3, 3);
+      material.displacementMap.repeat.set(3, 3);
+      material.normalMap.repeat.set(3, 3);
+      material.roughnessMap.repeat.set(3, 3);
       this.gui.add(this.guiConf, "sphereMaterial", {
         Material1: 1,
         Material2: 2,
-        Material3: 3,
-        Material4: 4,
-        Material5: 5
+        Material3: 3
       }).onChange(function (value) {
         _this3.transformMaterial(value, material, materials, 4);
       });
-      this.sphere(material);
+      setTimeout(function () {
+        _this3.sphere(material);
+      }, 2000);
     }
   }, {
     key: "sphere",
@@ -1561,10 +1583,6 @@ var SofaModelController = /*#__PURE__*/function () {
         mat = materials.mat2;
       } else if (index === "3") {
         mat = materials.mat3;
-      } else if (index === "4") {
-        mat = materials.mat4;
-      } else if (index === "5") {
-        mat = materials.lion;
       } else {
         mat = materials.mat1;
       }
