@@ -1225,6 +1225,214 @@ exports.default = void 0;
 
 var THREE = _interopRequireWildcard(require("three"));
 
+var _gsap = _interopRequireDefault(require("gsap"));
+
+var _OrbitControls = require("three/examples/jsm/controls/OrbitControls");
+
+var _GLTFLoader = require("three/examples/jsm/loaders/GLTFLoader");
+
+var _DRACOLoader = require("three/examples/jsm/loaders/DRACOLoader");
+
+var _RoomEnvironment = require("three/examples/jsm/environments/RoomEnvironment");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var SofaModel = /*#__PURE__*/function () {
+  function SofaModel() {
+    _classCallCheck(this, SofaModel);
+
+    this.DOM = {
+      modelContainer: ".js-sofa-model-container"
+    };
+  }
+
+  _createClass(SofaModel, [{
+    key: "init",
+    value: function init() {
+      this.modelContainer = document.querySelector(this.DOM.modelContainer);
+
+      if (this.modelContainer !== null) {
+        console.log("GLTFModelController init()");
+        this.width = this.modelContainer.offsetWidth;
+        this.height = this.modelContainer.offsetHeight;
+        THREE.Cache.enabled = true;
+        this.texture = new THREE.TextureLoader();
+        this.initFBXModel();
+        this.animate();
+      }
+    }
+  }, {
+    key: "initFBXModel",
+    value: function initFBXModel() {
+      // camera
+      this.camera = new THREE.PerspectiveCamera(35, this.width / this.height, 0.5, 400);
+      this.camera.position.set(17, 10, 17); // scene
+
+      this.scene = new THREE.Scene();
+      this.scene.background = new THREE.Color(0xbbbbbb); // ground grid
+
+      var grid = new THREE.GridHelper(2000, 40, 0x000000, 0x000000);
+      grid.material.opacity = 0.1;
+      grid.material.transparent = true;
+      this.scene.add(grid); // renderer
+
+      this.renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        powerPreference: "high-performance"
+      });
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.setSize(this.width, this.height);
+      this.renderer.shadowMap.enabled = true;
+      this.renderer.gammaFactor = 2.2;
+      this.renderer.outputEncoding = THREE.sRGBEncoding;
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.shadowMap.type = THREE.PCFShadowMap;
+      this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      this.renderer.toneMappingExposure = 1;
+      this.modelContainer.appendChild(this.renderer.domElement);
+      var environment = new _RoomEnvironment.RoomEnvironment();
+      this.pmremGenerator = new THREE.PMREMGenerator(this.renderer);
+      this.scene.environment = this.pmremGenerator.fromScene(environment).texture; // loader
+
+      this.loadModel(); // orbit controls
+
+      this.controls = new _OrbitControls.OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.target.set(0, 1, 0);
+      this.controls.autoRotateSpeed = 1;
+      this.controls.enableDamping = true;
+      this.controls.minDistance = 4;
+      this.controls.maxDistance = 30;
+      this.controls.maxPolarAngle = Math.PI / 2;
+      this.controls.minPolarAngle = 0;
+      this.controls.update();
+    }
+  }, {
+    key: "loadModel",
+    value: function loadModel() {
+      var _this = this;
+
+      var basecolor = this.texture.load("static/images/lion-texture/basecolor.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var ambientOcclusion = this.texture.load("static/images/lion-texture/ambientOcclusion.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var height = this.texture.load("static/images/lion-texture/height.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var metallic = this.texture.load("static/images/lion-texture/metallic.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var normal = this.texture.load("static/images/lion-texture/normal.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var roughness = this.texture.load("static/images/lion-texture/roughness.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var sheencolor = this.texture.load("static/images/lion-texture/sheencolor.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var sheenopacity = this.texture.load("static/images/lion-texture/sheenopacity.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var sheenroughness = this.texture.load("static/images/lion-texture/sheenroughness.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      }); // MeshLambertMaterial and MeshPhongMaterial
+
+      var specular = this.texture.load("static/images/lion-texture/specular.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      }); // MeshLambertMaterial and MeshPhongMaterial
+
+      var specularLevel = this.texture.load("static/images/lion-texture/specularLevel.jpg", function (tex) {
+        tex.encoding = THREE.sRGBEncoding;
+      });
+      var material = new THREE.MeshStandardMaterial({
+        map: basecolor,
+        aoMap: ambientOcclusion,
+        normalMap: normal,
+        displacementMap: height,
+        roughnessMap: roughness,
+        displacementScale: 0.1,
+        metalnessMap: metallic,
+        flatShading: false
+      });
+      material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+      material.aoMap.wrapS = material.aoMap.wrapT = THREE.RepeatWrapping;
+      material.displacementMap.wrapS = material.displacementMap.wrapT = THREE.RepeatWrapping;
+      material.normalMap.wrapS = material.normalMap.wrapT = THREE.RepeatWrapping; // material.roughnessMap.wrapS = material.roughnessMap.wrapT = THREE.RepeatWrapping;
+
+      material.map.repeat.set(0.1, 0.1);
+      material.aoMap.repeat.set(0.1, 0.1);
+      material.displacementMap.repeat.set(0.1, 0.1);
+      material.normalMap.repeat.set(0.1, 0.1); // material.roughnessMap.repeat.set(0.1, 0.1);
+      // get model
+
+      var model = this.modelContainer.getAttribute("data-model-source"); // loader
+
+      var loader = new _GLTFLoader.GLTFLoader();
+      var dracoLoader = new _DRACOLoader.DRACOLoader();
+      dracoLoader.setDecoderPath("draco/");
+      loader.setDRACOLoader(dracoLoader);
+      loader.load(model, function (model) {
+        material.color.convertSRGBToLinear();
+        model.scene.traverse(function (object) {
+          if (object.isMesh) {
+            object.castShadow = true;
+            object.receiveShadow = true;
+            object.material.color.convertSRGBToLinear(); // initial material setup
+
+            object.material = material;
+            object.material.sheen = 0x000000;
+            object.material.sheenRoughness = 1;
+            object.material.sheenExposure = 10; // object.material.sheenEoughness = sheenroughness;
+
+            console.log(object.material);
+          }
+        });
+
+        _this.scene.add(model.scene);
+      });
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      var _this2 = this;
+
+      requestAnimationFrame(function () {
+        return _this2.animate();
+      });
+      this.renderer.render(this.scene, this.camera);
+      this.controls.update();
+    }
+  }]);
+
+  return SofaModel;
+}();
+
+exports.default = SofaModel;
+
+},{"gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/environments/RoomEnvironment":"three/examples/jsm/environments/RoomEnvironment","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
+"use strict";
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var THREE = _interopRequireWildcard(require("three"));
+
 var dat = _interopRequireWildcard(require("dat.gui"));
 
 var _gsap = _interopRequireDefault(require("gsap"));
@@ -1628,7 +1836,7 @@ var SofaModelController = /*#__PURE__*/function () {
 
 exports.default = SofaModelController;
 
-},{"dat.gui":"dat.gui","gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/environments/RoomEnvironment":"three/examples/jsm/environments/RoomEnvironment","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],6:[function(require,module,exports){
+},{"dat.gui":"dat.gui","gsap":"gsap","three":"three","three/examples/jsm/controls/OrbitControls":"three/examples/jsm/controls/OrbitControls","three/examples/jsm/environments/RoomEnvironment":"three/examples/jsm/environments/RoomEnvironment","three/examples/jsm/loaders/DRACOLoader":"three/examples/jsm/loaders/DRACOLoader","three/examples/jsm/loaders/GLTFLoader":"three/examples/jsm/loaders/GLTFLoader"}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1754,7 +1962,7 @@ var GridHelper = /*#__PURE__*/function () {
 
 exports.default = GridHelper;
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 "use strict";
 
 var _GridHelper = _interopRequireDefault(require("./helpers/GridHelper"));
@@ -1768,6 +1976,8 @@ var _GLTFModelControllerShader = _interopRequireDefault(require("./components/GL
 var _GLTFModelControllerEnvironment = _interopRequireDefault(require("./components/GLTFModelControllerEnvironment"));
 
 var _SofaModelController = _interopRequireDefault(require("./components/SofaModelController"));
+
+var _SofaModel = _interopRequireDefault(require("./components/SofaModel"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1856,8 +2066,10 @@ ready(function () {
   gLTFModelControllerEnvironment.init();
   var sofaModelController = new _SofaModelController.default();
   sofaModelController.init();
+  var sofaModel = new _SofaModel.default();
+  sofaModel.init();
 });
 
-},{"./components/GLTFModelController":1,"./components/GLTFModelControllerEnvironment":2,"./components/GLTFModelControllerShader":3,"./components/NavigationController":4,"./components/SofaModelController":5,"./helpers/GridHelper":6}]},{},[7])
+},{"./components/GLTFModelController":1,"./components/GLTFModelControllerEnvironment":2,"./components/GLTFModelControllerShader":3,"./components/NavigationController":4,"./components/SofaModel":5,"./components/SofaModelController":6,"./helpers/GridHelper":7}]},{},[8])
 
 //# sourceMappingURL=bundle.js.map

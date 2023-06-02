@@ -18,6 +18,7 @@ import GLTFModelController from "./components/GLTFModelController";
 import GLTFModelControllerShader from "./components/GLTFModelControllerShader";
 import GLTFModelControllerEnvironment from "./components/GLTFModelControllerEnvironment";
 import SofaModelController from "./components/SofaModelController";
+import SofaModel from "./components/SofaModel";
 
 /**
  * Check if document is ready cross-browser
@@ -96,4 +97,7 @@ ready(() => {
 
     const sofaModelController = new SofaModelController();
     sofaModelController.init();
+
+    const sofaModel = new SofaModel();
+    sofaModel.init();
 });
